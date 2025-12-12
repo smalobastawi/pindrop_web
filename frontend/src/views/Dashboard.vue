@@ -96,4 +96,31 @@ const fetchDashboardData = async () => {
     stats.value = statsRes.data
     deliveries.value = deliveriesRes.data.results
   } catch (error) {
-    toast.error
+    toast.error('Failed to fetch dashboard data')
+    console.error('Dashboard error:', error)
+  }
+}
+
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A'
+  const date = new Date(dateString)
+  return date.toLocaleDateString()
+}
+
+const getStatusColor = (status) => {
+  const colorMap = {
+    'pending': 'secondary',
+    'assigned': 'info',
+    'picked_up': 'primary',
+    'in_transit': 'warning',
+    'delivered': 'success',
+    'failed': 'danger',
+    'cancelled': 'dark'
+  }
+  return colorMap[status] || 'secondary'
+}
+
+onMounted(() => {
+  fetchDashboardData()
+})
+</script>
