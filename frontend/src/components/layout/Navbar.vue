@@ -1,32 +1,47 @@
 <!-- frontend/src/components/layout/Navbar.vue -->
 <template>
-  <nav class="navbar navbar-dark bg-primary fixed-top">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
     <div class="container-fluid">
-      <button class="navbar-toggler" type="button" @click="toggleSidebar">
+      <a class="navbar-brand" href="#">
+        🚚 Delivery Management
+      </a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
         <span class="navbar-toggler-icon"></span>
       </button>
-      <a class="navbar-brand" href="#">
-        <i class="bi bi-truck"></i> Delivery Management
-      </a>
-      <div class="dropdown">
-        <button
-          class="btn btn-light dropdown-toggle"
-          type="button"
-          data-bs-toggle="dropdown"
-        >
-          {{ user?.username || "User" }}
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end">
-          <li>
-            <a class="dropdown-item" href="#"
-              ><i class="bi bi-person"></i> Profile</a
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="navbarDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
             >
-          </li>
-          <li><hr class="dropdown-divider" /></li>
-          <li>
-            <a class="dropdown-item text-danger" href="#" @click="logout">
-              <i class="bi bi-box-arrow-right"></i> Logout
+              👤 Admin User
             </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <li>
+                <a class="dropdown-item" href="#"
+                  >👤 Profile</a
+                >
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <a class="dropdown-item text-danger" href="#" @click="logout">
+                  🚪 Logout
+                </a>
+              </li>
+            </ul>
           </li>
         </ul>
       </div>
@@ -35,18 +50,37 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
-import { useAuthStore } from "@/stores/auth";
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
-const authStore = useAuthStore();
-const user = computed(() => authStore.user);
-
-const toggleSidebar = () => {
-  const sidebar = document.querySelector(".sidebar");
-  sidebar.classList.toggle("collapsed");
-};
+const router = useRouter()
+const authStore = useAuthStore()
 
 const logout = () => {
-  authStore.logout();
-};
+  authStore.logout()
+  router.push('/login')
+}
 </script>
+
+<style scoped>
+.navbar-brand {
+  font-weight: bold;
+}
+
+.navbar-nav .nav-link {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.navbar-nav .nav-link:hover {
+  color: rgba(255, 255, 255, 1) !important;
+}
+
+.dropdown-item {
+  color: #212529;
+}
+
+.dropdown-item:hover {
+  color: #16181b;
+  background-color: #f8f9fa;
+}
+</style>

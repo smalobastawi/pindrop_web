@@ -7,7 +7,6 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap'
-import 'bootstrap-icons/font/bootstrap-icons.css'
 import Vue3Toastify from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
 
