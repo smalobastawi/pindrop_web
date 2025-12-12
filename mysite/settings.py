@@ -10,7 +10,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'your-secret-key')
 DEBUG = True
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = [
+    "pindrop.testrunner.co.ke",
+    "127.0.0.1",
+    "localhost"
+]
 
 # Application definition
 INSTALLED_APPS = [
