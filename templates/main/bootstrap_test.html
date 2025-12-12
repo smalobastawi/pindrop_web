@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %} 
+{% block content %}
+<style>
+  .test-box {
+    border: 2px dashed #ccc;
+    padding: 20px;
+    margin: 10px 0;
+  }
+</style>
+
+<div class="container">
+  <h1>Bootstrap Integration Test</h1> 
+
+  <div class="test-box">
+    <h3>1. Typography Test</h3>
+    <h1>h1. Bootstrap heading</h1>
+    <h2>h2. Bootstrap heading</h2>
+    <p class="lead">
+      This is a lead paragraph. It stands out from regular paragraphs.
+    </p>
+    <p>You can use the mark tag to <mark>highlight</mark> text.</p>
+  </div>
+
+  <div class="test-box">
+    <h3>2. Color Test</h3>
+    <p class="text-primary">.text-primary</p>
+    <p class="text-success">.text-success</p>
+    <p class="text-danger">.text-danger</p>
+    <p class="text-warning bg-dark">.text-warning on dark background</p>
+  </div>
+
+  <div class="test-box">
+    <h3>3. Responsive Grid Test</h3>
+    <div class="row">
+      <div class="col-sm-6 col-md-4 col-lg-3">
+        <div class="p-3 bg-primary text-white">Column 1</div>
+      </div>
+      <div class="col-sm-6 col-md-4 col-lg-3">
+        <div class="p-3 bg-success text-white">Column 2</div>
+      </div>
+      <div class="col-sm-6 col-md-4 col-lg-3">
+        <div class="p-3 bg-warning text-dark">Column 3</div>
+      </div>
+      <div class="col-sm-6 col-md-12 col-lg-3">
+        <div class="p-3 bg-danger text-white">
+          Column 4 (full width on medium)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="test-box">
+    <h3>4. Interactive Components Test</h3>
+
+    <!-- Collapse -->
+    <p>
+      <button
+        class="btn btn-primary"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#collapseExample"
+      >
+        Toggle Collapse (Click me)
+      </button>
+    </p>
+    <div class="collapse" id="collapseExample">
+      <div class="card card-body">
+        If you can see this content when clicking the button, Bootstrap JS is
+        working!
+      </div>
+    </div>
+
+    <!-- Spinner -->
+    <div class="mt-3">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <div class="spinner-grow text-success ms-2" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="test-box">
+    <h3>5. Form Controls Test</h3>
+    <div class="mb-3">
+      <label class="form-label">Range input</label>
+      <input type="range" class="form-range" />
+    </div>
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" role="switch" />
+      <label class="form-check-label">Toggle switch</label>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Test if Bootstrap JS is loaded
+  document.addEventListener("DOMContentLoaded", function () {
+    console.log("=== BOOTSTRAP TEST RESULTS ===");
+
+    // Test 1: Check if Bootstrap object exists
+    if (typeof bootstrap !== "undefined") {
+      console.log("✅ Bootstrap JavaScript is loaded");
+      console.log("Bootstrap modules available:");
+      for (let key in bootstrap) {
+        if (bootstrap[key] && bootstrap[key].VERSION) {
+          console.log(`  - ${key}: v${bootstrap[key].VERSION}`);
+        }
+      }
+    } else {
+      console.log("❌ Bootstrap JavaScript is NOT loaded");
+    }
+
+    // Test 2: Check CSS classes are applied
+    const testBtn = document.createElement("button");
+    testBtn.className = "btn btn-primary";
+    document.body.appendChild(testBtn);
+    const styles = window.getComputedStyle(testBtn);
+    const hasBootstrap =
+      styles.borderRadius !== "0px" && styles.padding !== "0px";
+    console.log(
+      hasBootstrap
+        ? "✅ Bootstrap CSS is applied"
+        : "❌ Bootstrap CSS may not be applied"
+    );
+    document.body.removeChild(testBtn);
+
+    console.log("=== END TEST ===");
+  });
+</script>
+{% endblock %}

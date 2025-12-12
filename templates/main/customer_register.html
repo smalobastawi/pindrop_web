@@ -1,0 +1,164 @@
+<!-- templates/main/customer_register.html -->
+{% extends 'base.html' %}
+
+{% block title %}Customer Registration - PinDrop{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Customer Registration</h4>
+                </div>
+                <div class="card-body">
+                    <form id="customerRegisterForm">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="name" class="form-label">Full Name *</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">Phone *</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address *</label>
+                            <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password *</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirm Password *</label>
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                        </div>
+                        
+                        <div id="errorMessage" class="alert alert-danger" style="display: none;"></div>
+                        <div id="successMessage" class="alert alert-success" style="display: none;"></div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary" id="registerBtn">
+                                Register
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <p>Already have an account? 
+                            <a href="{% url 'customer_login' %}" class="text-decoration-none">
+                                Login here
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('customerRegisterForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData);
+    
+    // Validate passwords match
+    if (data.password !== data.confirmPassword) {
+        showMessage('Passwords do not match', 'error');
+        return;
+    }
+    
+    // Validate password strength
+    if (data.password.length < 6) {
+        showMessage('Password must be at least 6 characters long', 'error');
+        return;
+    }
+    
+    const registerBtn = document.getElementById('registerBtn');
+    registerBtn.disabled = true;
+    registerBtn.innerHTML = 'Registering...';
+    
+    try {
+        const response = await fetch('{% url "customer_register" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            showMessage('Registration successful! You can now login.', 'success');
+            setTimeout(() => {
+                window.location.href = '{% url "customer_login" %}';
+            }, 2000);
+        } else {
+            showMessage(result.error || 'Registration failed', 'error');
+        }
+    } catch (error) {
+        showMessage('An error occurred. Please try again.', 'error');
+    } finally {
+        registerBtn.disabled = false;
+        registerBtn.innerHTML = 'Register';
+    }
+});
+
+function showMessage(message, type) {
+    const errorDiv = document.getElementById('errorMessage');
+    const successDiv = document.getElementById('successMessage');
+    
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'none';
+    
+    if (type === 'error') {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+    } else {
+        successDiv.textContent = message;
+        successDiv.style.display = 'block';
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+
+<style scoped>
+.card {
+    border-radius: 10px;
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+}
+</style>
+{% endblock %}

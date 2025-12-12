@@ -1,0 +1,192 @@
+<!-- templates/main/home.html -->
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - PinDrop Admin{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-12 mx-auto">
+    <!-- Dashboard Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="display-4 mb-0">🚚 PinDrop Admin Dashboard</h1>
+      <div class="text-muted">
+        <i class="bi bi-clock"></i> Last updated: {% now "H:i" %}
+      </div>
+    </div>
+    
+    <!-- Key Metrics Overview -->
+    <div class="row mb-5">
+      <div class="col-md-3 mb-3">
+        <div class="card bg-primary text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h2 class="card-title mb-0">247</h2>
+                <p class="card-text">Active Deliveries</p>
+              </div>
+              <div class="align-self-center">
+                <i class="bi bi-truck fs-1"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h2 class="card-title mb-0">89</h2>
+                <p class="card-text">Riders Online</p>
+              </div>
+              <div class="align-self-center">
+                <i class="bi bi-people fs-1"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3 mb-3">
+        <div class="card bg-info text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h2 class="card-title mb-0">$12,450</h2>
+                <p class="card-text">Today's Revenue</p>
+              </div>
+              <div class="align-self-center">
+                <i class="bi bi-currency-dollar fs-1"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h2 class="card-title mb-0">$3,280</h2>
+                <p class="card-text">Pending Payments</p>
+              </div>
+              <div class="align-self-center">
+                <i class="bi bi-credit-card fs-1"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions Panel -->
+    <div class="row mb-5">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Actions</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3 mb-3">
+                <button class="btn btn-outline-primary w-100 h-100">
+                  <i class="bi bi-plus-circle d-block fs-1 mb-2"></i>
+                  Assign Package
+                </button>
+              </div>
+              <div class="col-md-3 mb-3">
+                <button class="btn btn-outline-success w-100 h-100">
+                  <i class="bi bi-check-circle d-block fs-1 mb-2"></i>
+                  Approve Disbursements
+                </button>
+              </div>
+              <div class="col-md-3 mb-3">
+                <button class="btn btn-outline-warning w-100 h-100">
+                  <i class="bi bi-person-plus d-block fs-1 mb-2"></i>
+                  Onboard Rider
+                </button>
+              </div>
+              <div class="col-md-3 mb-3">
+                <button class="btn btn-outline-info w-100 h-100">
+                  <i class="bi bi-map d-block fs-1 mb-2"></i>
+                  View Live Map
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Management Sections Overview -->
+    <div class="row">
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <i class="bi bi-people fs-1 text-primary mb-3"></i>
+            <h5 class="card-title">Rider Management</h5>
+            <p class="card-text">Manage rider profiles, track performance, and handle disbursements.</p>
+            <div class="mt-3">
+              <small class="text-muted">
+                👥 156 Total Riders | 💰 23 Pending Disbursements
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <i class="bi bi-box fs-1 text-success mb-3"></i>
+            <h5 class="card-title">Package Control</h5>
+            <p class="card-text">Track packages, manage assignments, and monitor delivery analytics.</p>
+            <div class="mt-3">
+              <small class="text-muted">
+                📦 247 Active | 🔄 89 In Transit | ✅ 156 Completed Today
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <i class="bi bi-graph-up fs-1 text-info mb-3"></i>
+            <h5 class="card-title">Financial Hub</h5>
+            <p class="card-text">Monitor revenue streams, process payments, and view financial reports.</p>
+            <div class="mt-3">
+              <small class="text-muted">
+                💵 $12,450 Revenue | 💸 $3,280 Pending | 📊 +15% vs Yesterday
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="card h-100 border-primary">
+          <div class="card-body text-center">
+            <i class="bi bi-person-circle fs-1 text-primary mb-3"></i>
+            <h5 class="card-title text-primary">Customer Portal</h5>
+            <p class="card-text">Modern customer interface for placing orders, making payments, and tracking deliveries.</p>
+            <div class="mt-3">
+              <a href="{% url 'customer_login' %}" class="btn btn-primary">
+                <i class="bi bi-box-arrow-up-right me-2"></i>Open Customer Portal
+              </a>
+              <div class="mt-2">
+                <small class="text-muted">
+                  🎯 New | 🔐 Secure | 📱 Responsive
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

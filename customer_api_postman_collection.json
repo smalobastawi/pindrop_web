@@ -1,0 +1,584 @@
+{
+	"info": {
+		"_postman_id": "customer-api-collection-v1",
+		"name": "Customer Portal API Collection",
+		"description": "Complete Postman collection for Customer Portal APIs including authentication, customer management, order creation, tracking, and delivery management.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000/api",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "customer_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "delivery_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "tracking_number",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login - Obtain JWT Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('access_token', response.access);",
+									"    pm.collectionVariables.set('refresh_token', response.refresh);",
+									"    console.log('Tokens set successfully');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/token/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"token/"
+							]
+						},
+						"description": "Obtain JWT access and refresh tokens for authentication"
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('access_token', response.access);",
+									"    console.log('Access token refreshed successfully');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/token/refresh/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"token/refresh/"
+							]
+						},
+						"description": "Refresh the JWT access token using refresh token"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints for obtaining and refreshing JWT tokens"
+		},
+		{
+			"name": "Customer Management",
+			"item": [
+				{
+					"name": "Register Customer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phone\": \"+254712345678\",\n  \"address\": \"123 Main Street, Nairobi, Kenya\",\n  \"password\": \"securepassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/customer/register/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customer/register/"
+							]
+						},
+						"description": "Register a new customer account"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Customer Portal",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/customer/portal/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customer/portal/"
+							]
+						},
+						"description": "Get customer profile and order history (requires authentication)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('tracking_number', response.tracking_number);",
+									"    console.log('Order created with tracking number:', response.tracking_number);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"package\": {\n    \"description\": \"Electronics - Laptop\",\n    \"weight\": 2.5,\n    \"dimensions\": \"35x25x5\",\n    \"package_type\": \"parcel\",\n    \"value\": 50000,\n    \"special_instructions\": \"Handle with care - Fragile\"\n  },\n  \"delivery\": {\n    \"pickup_address\": \"Westlands, Nairobi\",\n    \"delivery_address\": \"Karen, Nairobi\",\n    \"estimated_pickup\": \"2025-12-13T10:00:00Z\",\n    \"estimated_delivery\": \"2025-12-13T16:00:00Z\",\n    \"priority\": 2\n  },\n  \"payment\": {\n    \"amount\": 250.00,\n    \"payment_method\": \"cash\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/customer/portal/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customer/portal/"
+							]
+						},
+						"description": "Create a new delivery order (requires authentication)"
+					},
+					"response": []
+				},
+				{
+					"name": "Track Order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    console.log('Order status:', response.status);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/customer/track/?tracking_number={{tracking_number}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customer/track/"
+							],
+							"query": [
+								{
+									"key": "tracking_number",
+									"value": "{{tracking_number}}"
+								}
+							]
+						},
+						"description": "Track order by tracking number (public endpoint)"
+					},
+					"response": []
+				}
+			],
+			"description": "Customer-specific endpoints for registration, portal access, order creation and tracking"
+		},
+		{
+			"name": "Customer CRUD Operations",
+			"item": [
+				{
+					"name": "List Customers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/customers/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customers/"
+							]
+						},
+						"description": "List all customers (requires authentication)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Customer by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/customers/{{customer_id}}/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customers/{{customer_id}}/"
+							]
+						},
+						"description": "Get specific customer details (requires authentication)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Customer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Jane Smith\",\n  \"email\": \"jane.smith@example.com\",\n  \"phone\": \"+254798765432\",\n  \"address\": \"456 Uhuru Highway, Mombasa, Kenya\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/customers/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customers/"
+							]
+						},
+						"description": "Create a new customer (requires authentication)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Customer",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"phone\": \"+254712345679\",\n  \"address\": \"New Address, Kisumu, Kenya\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/customers/{{customer_id}}/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customers/{{customer_id}}/"
+							]
+						},
+						"description": "Update customer information (requires authentication)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Customer",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/customers/{{customer_id}}/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"customers/{{customer_id}}/"
+							]
+						},
+						"description": "Delete customer (requires authentication)"
+					},
+					"response": []
+				}
+			],
+			"description": "Full CRUD operations for customer management"
+		},
+		{
+			"name": "Delivery Management",
+			"item": [
+				{
+					"name": "List Deliveries",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/deliveries/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"deliveries/"
+							]
+						},
+						"description": "List all deliveries (filtered by user role - requires authentication)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Delivery by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/deliveries/{{delivery_id}}/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"deliveries/{{delivery_id}}/"
+							]
+						},
+						"description": "Get specific delivery details (requires authentication)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Delivery Status",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"in_transit\",\n  \"location\": \"Nairobi CBD\",\n  \"notes\": \"Package picked up successfully\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/deliveries/{{delivery_id}}/update_status/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"deliveries/{{delivery_id}}/update_status/"
+							]
+						},
+						"description": "Update delivery status with location and notes (requires authentication)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Dashboard Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/dashboard/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"dashboard/"
+							]
+						},
+						"description": "Get dashboard statistics (role-based - requires authentication)"
+					},
+					"response": []
+				}
+			],
+			"description": "Delivery management endpoints for drivers and administrators"
+		},
+		{
+			"name": "Additional Resources",
+			"item": [
+				{
+					"name": "List Packages",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/packages/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"packages/"
+							]
+						},
+						"description": "List all packages (requires authentication)"
+					},
+					"response": []
+				},
+				{
+					"name": "List Drivers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/drivers/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"drivers/"
+							]
+						},
+						"description": "List all drivers (requires authentication)"
+					},
+					"response": []
+				},
+				{
+					"name": "List Payments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/payments/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments/"
+							]
+						},
+						"description": "List all payments (requires authentication)"
+					},
+					"response": []
+				},
+				{
+					"name": "List Status Updates",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/status-updates/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"status-updates/"
+							]
+						},
+						"description": "List all delivery status updates (requires authentication)"
+					},
+					"response": []
+				}
+			],
+			"description": "Additional resource endpoints for packages, drivers, payments, and status updates"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Set default variables if not already set",
+					"if (!pm.collectionVariables.get('base_url')) {",
+					"    pm.collectionVariables.set('base_url', 'http://localhost:8000/api');",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Log response for debugging",
+					"console.log('Response:', pm.response.text());",
+					"",
+					"// Set common response handlers",
+					"if (pm.response.code === 401) {",
+					"    console.log('Authentication required - please login first');",
+					"} else if (pm.response.code >= 400) {",
+					"    console.log('Request failed with status:', pm.response.code);",
+					"}"
+				]
+			}
+		}
+	]
+}

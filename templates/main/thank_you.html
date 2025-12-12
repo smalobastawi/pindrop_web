@@ -1,0 +1,21 @@
+{% extends 'base.html' %} 
+{% block title %}{{ title }}{% endblock %} 
+{% block content %}
+<div class="container mt-5">
+  <div class="text-center">
+    <div class="alert alert-success" role="alert">
+      <h4 class="alert-heading">Success!</h4>
+      <p>{{ message }}</p>
+      <hr />
+      <p class="mb-0">We'll get back to you as soon as possible.</p>
+    </div>
+
+    <div class="mt-4">
+      <a href="{% url 'home' %}" class="btn btn-primary">Go to Home</a>
+      <a href="{% url 'services' %}" class="btn btn-outline-secondary ms-2"
+        >View Services</a
+      >
+    </div>
+  </div>
+</div>
+{% endblock %}

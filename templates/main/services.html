@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% block title %}Package Control - PinDrop Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-10 mx-auto">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-5 mb-0">
+          <i class="bi bi-box text-success"></i> Package Control Center
+        </h1>
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+      </div>
+
+      <!-- Package Statistics -->
+      <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+          <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+              <h3 class="card-title">247</h3>
+              <p class="card-text">Active Packages</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+              <h3 class="card-title">89</h3>
+              <p class="card-text">In Transit</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card bg-success text-white">
+            <div class="card-body text-center">
+              <h3 class="card-title">156</h3>
+              <p class="card-text">Delivered Today</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card bg-info text-white">
+            <div class="card-body text-center">
+              <h3 class="card-title">94%</h3>
+              <p class="card-text">Success Rate</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Package Management Features -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0"><i class="bi bi-grid"></i> Package Management Features</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <div class="d-flex align-items-start">
+                    <div class="me-3">
+                      <i class="bi bi-search text-primary fs-4"></i>
+                    </div>
+                    <div>
+                      <h6>Package Tracker</h6>
+                      <p class="text-muted small mb-2">Complete package database with status filters, advanced search, and bulk actions for efficient management.</p>
+                      <span class="badge bg-primary">247 Active</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <div class="d-flex align-items-start">
+                    <div class="me-3">
+                      <i class="bi bi-arrow-repeat text-success fs-4"></i>
+                    </div>
+                    <div>
+                      <h6>Assignment System</h6>
+                      <p class="text-muted small mb-2">Intelligent interface to assign/reassign packages to riders with automatic matching suggestions.</p>
+                      <span class="badge bg-success">Auto-match</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <div class="d-flex align-items-start">
+                    <div class="me-3">
+                      <i class="bi bi-person-lines-fill text-info fs-4"></i>
+                    </div>
+                    <div>
+                      <h6>Customer Details</h6>
+                      <p class="text-muted small mb-2">Comprehensive customer information, delivery addresses, and communication logs for better service.</p>
+                      <span class="badge bg-info">Full Profile</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <div class="d-flex align-items-start">
+                    <div class="me-3">
+                      <i class="bi bi-graph-up text-warning fs-4"></i>
+                    </div>
+                    <div>
+                      <h6>Delivery Analytics</h6>
+                      <p class="text-muted small mb-2">Success rates, average delivery times, and detailed reports on problem packages and performance.</p>
+                      <span class="badge bg-warning">Real-time</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Package Actions -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Package Actions</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-3 mb-3">
+                  <button class="btn btn-primary w-100">
+                    <i class="bi bi-plus-circle d-block mb-2"></i>
+                    Add Package
+                  </button>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <button class="btn btn-success w-100">
+                    <i class="bi bi-arrow-right-circle d-block mb-2"></i>
+                    Assign to Rider
+                  </button>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <button class="btn btn-info w-100">
+                    <i class="bi bi-search d-block mb-2"></i>
+                    Track Package
+                  </button>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <button class="btn btn-warning w-100">
+                    <i class="bi bi-file-earmark-bar-graph d-block mb-2"></i>
+                    View Analytics
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Package Activity -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0"><i class="bi bi-clock-history"></i> Recent Package Activity</h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Package ID</th>
+                      <th>Customer</th>
+                      <th>Status</th>
+                      <th>Rider</th>
+                      <th>Est. Delivery</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>#PKG-2024-001</td>
+                      <td>John Doe</td>
+                      <td><span class="badge bg-warning">In Transit</span></td>
+                      <td>Mike R.</td>
+                      <td>2:30 PM</td>
+                      <td>
+                        <button class="btn btn-sm btn-outline-primary">View</button>
+                        <button class="btn btn-sm btn-outline-success">Reassign</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>#PKG-2024-002</td>
+                      <td>Sarah Smith</td>
+                      <td><span class="badge bg-success">Delivered</span></td>
+                      <td>Lisa K.</td>
+                      <td>1:15 PM</td>
+                      <td>
+                        <button class="btn btn-sm btn-outline-primary">View</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>#PKG-2024-003</td>
+                      <td>Bob Johnson</td>
+                      <td><span class="badge bg-danger">Pending</span></td>
+                      <td>Unassigned</td>
+                      <td>3:00 PM</td>
+                      <td>
+                        <button class="btn btn-sm btn-outline-primary">View</button>
+                        <button class="btn btn-sm btn-outline-warning">Assign</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

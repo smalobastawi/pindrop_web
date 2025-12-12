@@ -1,0 +1,44 @@
+<!-- templates/main/home.html -->
+{% extends 'base.html' %}
+{% load static %}  <!-- ADD THIS LINE -->
+
+{% block title %}Home - AI Project{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="display-4 mb-4">Welcome to AI Project</h1>
+    <p class="lead mb-4">A Django project with Bootstrap 5 and PostgreSQL ready for AI integration.</p>
+    
+    <div class="row mt-5">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <i class="bi bi-database fs-1 text-primary"></i>
+                    <h5 class="card-title mt-3">PostgreSQL</h5>
+                    <p class="card-text">Scalable database with AI-ready extensions.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <i class="bi bi-bootstrap fs-1 text-primary"></i>
+                    <h5 class="card-title mt-3">Bootstrap 5</h5>
+                    <p class="card-text">Modern responsive frontend framework.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <i class="bi bi-cpu fs-1 text-primary"></i>
+                    <h5 class="card-title mt-3">AI Ready</h5>
+                    <p class="card-text">Architecture prepared for AI integration.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% block title %}Financial Hub - PinDrop Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-10 mx-auto">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-5 mb-0">
+          <i class="bi bi-graph-up text-info"></i> Financial Hub
+        </h1>
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+      </div>
+
+      <!-- Financial Overview -->
+      <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+          <div class="card bg-success text-white">
+            <div class="card-body text-center">
+              <h3 class="card-title">$12,450</h3>
+              <p class="card-text">Today's Revenue</p>
+              <small><i class="bi bi-arrow-up"></i> +15% vs yesterday</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+              <h3 class="card-title">$3,280</h3>
+              <p class="card-text">Pending Disbursements</p>
+              <small>23 riders waiting</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+              <h3 class="card-title">$45,820</h3>
+              <p class="card-text">This Month</p>
+              <small><i class="bi bi-arrow-up"></i> +8% vs last month</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card bg-info text-white">
+            <div class="card-body text-center">
+              <h3 class="card-title">$2,150</h3>
+              <p class="card-text">Avg Daily Profit</p>
+              <small>18% margin</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Management Features -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0"><i class="bi bi-cash-stack"></i> Financial Management Features</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6 mb-4">
+                  <div class="d-flex align-items-start">
+                    <div class="me-3">
+                      <i class="bi bi-cash-coin text-success fs-4"></i>
+                    </div>
+                    <div>
+                      <h6>Revenue Stream</h6>
+                      <p class="text-muted small mb-2">Monitor incoming customer payments with status tracking, digital receipts, and detailed payment method breakdown.</p>
+                      <span class="badge bg-success">Real-time</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <div class="d-flex align-items-start">
+                    <div class="me-3">
+                      <i class="bi bi-bank text-warning fs-4"></i>
+                    </div>
+                    <div>
+                      <h6>Disbursement Center</h6>
+                      <p class="text-muted small mb-2">Manage outgoing rider payments with approval workflow, batch processing, and comprehensive transaction history.</p>
+                      <span class="badge bg-warning">Multi-rider</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <div class="d-flex align-items-start">
+                    <div class="me-3">
+                      <i class="bi bi-file-earmark-bar-graph text-info fs-4"></i>
+                    </div>
+                    <div>
+                      <h6>Financial Reports</h6>
+                      <p class="text-muted small mb-2">Generate profit margin analysis, cash flow reports, and exportable financial summaries for business insights.</p>
+                      <span class="badge bg-info">Exportable</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <div class="d-flex align-items-start">
+                    <div class="me-3">
+                      <i class="bi bi-shield-check text-primary fs-4"></i>
+                    </div>
+                    <div>
+                      <h6>Payment Security</h6>
+                      <p class="text-muted small mb-2">Advanced audit logs, failed transaction monitoring, and automated reconciliation tools for secure operations.</p>
+                      <span class="badge bg-primary">Secure</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Financial Actions -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Financial Actions</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-3 mb-3">
+                  <button class="btn btn-success w-100">
+                    <i class="bi bi-cash-coin d-block mb-2"></i>
+                    Process Payments
+                  </button>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <button class="btn btn-warning w-100">
+                    <i class="bi bi-check-circle d-block mb-2"></i>
+                    Approve Disbursements
+                  </button>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <button class="btn btn-info w-100">
+                    <i class="bi bi-file-earmark-bar-graph d-block mb-2"></i>
+                    Generate Reports
+                  </button>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <button class="btn btn-primary w-100">
+                    <i class="bi bi-arrow-repeat d-block mb-2"></i>
+                    Reconcile
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Financial Activity -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0"><i class="bi bi-clock-history"></i> Recent Financial Activity</h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Transaction ID</th>
+                      <th>Type</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>#TXN-2024-001</td>
+                      <td><span class="badge bg-success">Payment Received</span></td>
+                      <td>$45.00</td>
+                      <td><span class="badge bg-success">Completed</span></td>
+                      <td>2:15 PM</td>
+                      <td>
+                        <button class="btn btn-sm btn-outline-primary">View</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>#TXN-2024-002</td>
+                      <td><span class="badge bg-warning">Rider Disbursement</span></td>
+                      <td>$120.00</td>
+                      <td><span class="badge bg-warning">Pending Approval</span></td>
+                      <td>1:45 PM</td>
+                      <td>
+                        <button class="btn btn-sm btn-outline-success">Approve</button>
+                        <button class="btn btn-sm btn-outline-primary">View</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>#TXN-2024-003</td>
+                      <td><span class="badge bg-info">Daily Summary</span></td>
+                      <td>$12,450.00</td>
+                      <td><span class="badge bg-info">Generated</span></td>
+                      <td>12:00 AM</td>
+                      <td>
+                        <button class="btn btn-sm btn-outline-info">Download</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

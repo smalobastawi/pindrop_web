@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% block title %}Rider Management - PinDrop Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-5 mb-0">
+          <i class="bi bi-people text-primary"></i> Rider Management
+        </h1>
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+      </div>
+
+      <!-- Rider Statistics -->
+      <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+          <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+              <h3 class="card-title">156</h3>
+              <p class="card-text">Total Riders</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card bg-success text-white">
+            <div class="card-body text-center">
+              <h3 class="card-title">89</h3>
+              <p class="card-text">Currently Online</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card bg-info text-white">
+            <div class="card-body text-center">
+              <h3 class="card-title">4.8</h3>
+              <p class="card-text">Average Rating</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Management Sections -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0"><i class="bi bi-list-ul"></i> Rider Management Features</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <div class="d-flex align-items-start">
+                    <div class="me-3">
+                      <i class="bi bi-person-lines-fill text-primary fs-4"></i>
+                    </div>
+                    <div>
+                      <h6>Rider Directory</h6>
+                      <p class="text-muted small mb-0">Searchable table with rider profiles, status tracking, ratings, and delivery history.</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <div class="d-flex align-items-start">
+                    <div class="me-3">
+                      <i class="bi bi-cash-coin text-success fs-4"></i>
+                    </div>
+                    <div>
+                      <h6>Disbursement Queue</h6>
+                      <p class="text-muted small mb-0">Manage pending and processed payments with approval controls and payment history.</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <div class="d-flex align-items-start">
+                    <div class="me-3">
+                      <i class="bi bi-geo-alt text-info fs-4"></i>
+                    </div>
+                    <div>
+                      <h6>Live Tracking Map</h6>
+                      <p class="text-muted small mb-0">Interactive map showing real-time rider locations and their assigned deliveries.</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <div class="d-flex align-items-start">
+                    <div class="me-3">
+                      <i class="bi bi-gear text-warning fs-4"></i>
+                    </div>
+                    <div>
+                      <h6>Rider Actions</h6>
+                      <p class="text-muted small mb-0">Tools to onboard new riders, suspend accounts, and adjust rider service zones.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-3 mb-3">
+                  <button class="btn btn-primary w-100">
+                    <i class="bi bi-person-plus d-block mb-2"></i>
+                    Add New Rider
+                  </button>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <button class="btn btn-success w-100">
+                    <i class="bi bi-check-circle d-block mb-2"></i>
+                    Process Payments
+                  </button>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <button class="btn btn-info w-100">
+                    <i class="bi bi-map d-block mb-2"></i>
+                    View Live Map
+                  </button>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <button class="btn btn-warning w-100">
+                    <i class="bi bi-file-earmark-text d-block mb-2"></i>
+                    View Reports
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
