@@ -6,12 +6,27 @@ env/
 venv/
 *.log
 media/
+*.sqlite3
+*.mo
+*.pot
 
 # Node / Vue
 node_modules/
 dist/
+npm-debug.log*
+yarn-error.log*
 *.local
 
-# Environment variables
+# Flutter / Dart
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+.idea/
+*.iml
+
+# Environment files
 .env
 .env.*
