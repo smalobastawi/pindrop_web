@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'main',
     'api',  # We'll create this
     'delivery',  # Delivery management app
+    'admin_panel',  # Admin management panel
 ]
 
 MIDDLEWARE = [

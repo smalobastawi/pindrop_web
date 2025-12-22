@@ -7,6 +7,92 @@ const router = createRouter({
   routes: [
     // Admin routes
     {
+      path: '/admin-login',
+      name: 'AdminLogin',
+      component: () => import('@/views/admin/AdminLogin.vue'),
+      meta: { requiresAdminAuth: false }
+    },
+    {
+      path: '/admin',
+      name: 'AdminDashboard',
+      component: () => import('@/views/admin/AdminDashboard.vue'),
+      meta: { requiresAdminAuth: true }
+    },
+    {
+      path: '/admin/customers',
+      name: 'AdminCustomers',
+      component: () => import('@/views/admin/AdminCustomers.vue'),
+      meta: { requiresAdminAuth: true }
+    },
+    {
+      path: '/admin/drivers',
+      name: 'AdminDrivers',
+      component: () => import('@/views/admin/AdminDrivers.vue'),
+      meta: { requiresAdminAuth: true }
+    },
+    {
+      path: '/admin/deliveries',
+      name: 'AdminDeliveries',
+      component: () => import('@/views/admin/AdminDeliveries.vue'),
+      meta: { requiresAdminAuth: true }
+    },
+    {
+      path: '/admin/routes',
+      name: 'AdminRoutes',
+      component: () => import('@/views/admin/AdminRoutes.vue'),
+      meta: { requiresAdminAuth: true }
+    },
+    {
+      path: '/admin/users',
+      name: 'AdminUsers',
+      component: () => import('@/views/admin/AdminUsers.vue'),
+      meta: { requiresAdminAuth: true }
+    },
+    {
+      path: '/admin/roles',
+      name: 'AdminRoles',
+      component: () => import('@/views/admin/AdminRoles.vue'),
+      meta: { requiresAdminAuth: true }
+    },
+    {
+      path: '/admin/settings',
+      name: 'AdminSettings',
+      component: () => import('@/views/admin/AdminSettings.vue'),
+      meta: { requiresAdminAuth: true }
+    },
+    {
+      path: '/admin/reports',
+      name: 'AdminReports',
+      component: () => import('@/views/admin/AdminReports.vue'),
+      meta: { requiresAdminAuth: true }
+    },
+    {
+      path: '/admin/audit-logs',
+      name: 'AdminAuditLogs',
+      component: () => import('@/views/admin/AdminAuditLogs.vue'),
+      meta: { requiresAdminAuth: true }
+    },
+    {
+      path: '/admin/templates',
+      name: 'AdminTemplates',
+      component: () => import('@/views/admin/AdminTemplates.vue'),
+      meta: { requiresAdminAuth: true }
+    },
+    {
+      path: '/admin/backup',
+      name: 'AdminBackup',
+      component: () => import('@/views/admin/AdminBackup.vue'),
+      meta: { requiresAdminAuth: true }
+    },
+    {
+      path: '/admin/profile',
+      name: 'AdminProfile',
+      component: () => import('@/views/admin/AdminProfile.vue'),
+      meta: { requiresAdminAuth: true }
+    },
+    
+    // Legacy admin routes (for backward compatibility)
+    {
       path: '/login',
       name: 'Login',
       component: () => import('@/views/Login.vue'),
@@ -81,9 +167,38 @@ const router = createRouter({
   ]
 })
 
+// Move admin auth initialization to router guard
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   
+  // Import admin store only when needed to avoid initialization issues
+  let adminAuthStore = null
+  
+  // Check for admin routes
+  if (to.meta.requiresAdminAuth) {
+    // Dynamic import to avoid initialization issues
+    import('@/stores/adminAuth').then(({ useAdminAuthStore }) => {
+      adminAuthStore = useAdminAuthStore()
+      
+      if (!adminAuthStore.isAuthenticated) {
+        next('/admin-login')
+        return
+      }
+      
+      // Continue with other checks
+      checkOtherRoutes(to, next, authStore, adminAuthStore)
+    }).catch(() => {
+      next('/admin-login')
+    })
+    return
+  }
+  
+  // For non-admin routes, proceed with normal checks
+  checkOtherRoutes(to, next, authStore, adminAuthStore)
+})
+
+// Helper function for route checks
+function checkOtherRoutes(to, next, authStore, adminAuthStore) {
   // Check for customer routes
   if (to.meta.requiresCustomerAuth) {
     const customerToken = localStorage.getItem('access_token')
@@ -93,7 +208,7 @@ router.beforeEach((to, from, next) => {
     }
   }
   
-  // Check for admin routes
+  // Check for regular admin routes
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next('/login')
     return
@@ -102,6 +217,11 @@ router.beforeEach((to, from, next) => {
   // Handle login redirects
   if (to.name === 'Login' && authStore.isAuthenticated) {
     next('/dashboard')
+    return
+  }
+  
+  if (to.name === 'AdminLogin' && adminAuthStore?.isAuthenticated) {
+    next('/admin')
     return
   }
   
@@ -114,6 +234,6 @@ router.beforeEach((to, from, next) => {
   }
   
   next()
-})
+}
 
 export default router
