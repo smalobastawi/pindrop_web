@@ -3,7 +3,7 @@
     <div class="login-container">
       <div class="login-header">
         <div class="logo">
-          <h1>PinDrop Admin</h1>
+          <h1>RiderApp Admin</h1>
           <p>Administrator Portal</p>
         </div>
       </div>

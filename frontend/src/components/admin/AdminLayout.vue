@@ -4,7 +4,7 @@
     <header class="admin-header">
       <div class="header-content">
         <div class="logo">
-          <h1>PinDrop Admin</h1>
+          <h1>RiderApp Admin</h1>
         </div>
         <div class="header-actions">
           <div class="notifications">

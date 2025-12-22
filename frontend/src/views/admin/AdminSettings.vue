@@ -463,7 +463,7 @@ export default {
     
     const settings = ref({
       // General
-      site_name: 'PinDrop Delivery',
+      site_name: 'RiderApp Delivery',
       site_description: 'Fast and reliable delivery service',
       contact_email: 'support@pindrop.com',
       contact_phone: '+1-555-0123',
@@ -573,7 +573,7 @@ export default {
       
       // Reset to default values
       settings.value = {
-        site_name: 'PinDrop Delivery',
+        site_name: 'RiderApp Delivery',
         site_description: 'Fast and reliable delivery service',
         contact_email: 'support@pindrop.com',
         contact_phone: '+1-555-0123',

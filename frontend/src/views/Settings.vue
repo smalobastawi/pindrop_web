@@ -275,7 +275,7 @@ import { ref, onMounted } from 'vue'
 
 const settings = ref({
   general: {
-    company_name: 'PinDrop Delivery',
+    company_name: 'RiderApp Delivery',
     support_email: 'support@pindrop.com',
     company_address: '123 Business Street, Nairobi, Kenya',
     phone: '+254712345678',
