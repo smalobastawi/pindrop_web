@@ -2,7 +2,7 @@
 
 ## Overview
 
-This implementation adds a complete customer portal to the PinDrop delivery management system, allowing customers to:
+This implementation adds a complete customer portal to the RiderApp delivery management system, allowing customers to:
 
 - Register and create accounts
 - Place package delivery orders
