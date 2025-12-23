@@ -5,27 +5,106 @@ from django.utils import timezone
 
 class Customer(models.Model):
     """Customer/Client model"""
+    USER_TYPES = [
+        ('customer', 'Customer'),
+        ('rider', 'Rider'),
+        ('both', 'Both Customer and Rider')
+    ]
+    
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+        ('suspended', 'Suspended'),
+        ('pending_approval', 'Pending Approval')
+    ]
+    
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=200)
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20)
     address = models.TextField()
+    user_type = models.CharField(max_length=20, choices=USER_TYPES, default='customer')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    profile_image = models.ImageField(upload_to='customer_profiles/', blank=True, null=True)
+    
+    # Additional fields for mobile app
+    device_token = models.CharField(max_length=500, blank=True, null=True)
+    push_enabled = models.BooleanField(default=True)
+    preferred_language = models.CharField(max_length=10, default='en')
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
+    
+    @property
+    def is_rider(self):
+        return self.user_type in ['rider', 'both']
+    
+    @property
+    def is_customer(self):
+        return self.user_type in ['customer', 'both']
 
 class Driver(models.Model):
     """Delivery driver model"""
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+        ('suspended', 'Suspended'),
+        ('pending_approval', 'Pending Approval')
+    ]
+    
+    VEHICLE_TYPES = [
+        ('bicycle', 'Bicycle'),
+        ('motorcycle', 'Motorcycle'),
+        ('car', 'Car'),
+        ('van', 'Van'),
+        ('truck', 'Truck')
+    ]
+    
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    license_number = models.CharField(max_length=50)
-    vehicle_type = models.CharField(max_length=100)
+    customer = models.OneToOneField(Customer, on_delete=models.CASCADE, null=True, blank=True)
+    
+    # Driver information
+    license_number = models.CharField(max_length=50, unique=True)
+    license_expiry = models.DateField(null=True, blank=True)
+    vehicle_type = models.CharField(max_length=20, choices=VEHICLE_TYPES)
     vehicle_plate = models.CharField(max_length=20)
+    vehicle_model = models.CharField(max_length=100, blank=True)
+    vehicle_color = models.CharField(max_length=50, blank=True)
+    vehicle_year = models.IntegerField(null=True, blank=True)
+    
+    # Status and availability
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending_approval')
     is_available = models.BooleanField(default=True)
     current_location = models.CharField(max_length=200, blank=True)
+    last_location_update = models.DateTimeField(null=True, blank=True)
+    
+    # Rating and performance
+    rating = models.DecimalField(max_digits=3, decimal_places=2, default=5.0)
+    total_ratings = models.IntegerField(default=0)
+    completed_deliveries = models.IntegerField(default=0)
+    
+    # Additional fields for mobile app
+    device_token = models.CharField(max_length=500, blank=True, null=True)
+    push_enabled = models.BooleanField(default=True)
+    preferred_language = models.CharField(max_length=10, default='en')
+    
+    # Working hours
+    working_hours_start = models.TimeField(null=True, blank=True)
+    working_hours_end = models.TimeField(null=True, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user.get_full_name()} - {self.vehicle_plate}"
+        full_name = self.user.get_full_name() or self.user.username
+        return f"{full_name} - {self.vehicle_plate}"
+    
+    @property
+    def is_approved(self):
+        return self.status == 'active'
 
 class Package(models.Model):
     """Package/delivery item model"""

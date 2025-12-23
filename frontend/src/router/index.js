@@ -98,10 +98,12 @@ const router = createRouter({
       component: () => import('@/views/Login.vue'),
       meta: { requiresAuth: false }
     },
-    {
-      path: '/',
-      redirect: '/dashboard'
-    },
+ {
+  path: '/',
+  name: 'Home',
+  component: () => import('@/views/LandingPage.vue'),
+  meta: { requiresAuth: false }
+},
     {
       path: '/dashboard',
       name: 'Dashboard',
@@ -147,14 +149,26 @@ const router = createRouter({
     
     // Customer routes
     {
-      path: '/customer-login',
+      path: '/login',
       name: 'CustomerLogin',
       component: () => import('@/views/CustomerLogin.vue'),
       meta: { requiresAuth: false }
     },
     {
-      path: '/customer-register',
+      path: '/register',
       name: 'CustomerRegister',
+      component: () => import('@/views/CustomerRegister.vue'),
+      meta: { requiresAuth: false }
+    },
+    {
+      path: '/customer-login',
+      name: 'CustomerLoginLegacy',
+      component: () => import('@/views/CustomerLogin.vue'),
+      meta: { requiresAuth: false }
+    },
+    {
+      path: '/customer-register',
+      name: 'CustomerRegisterLegacy',
       component: () => import('@/views/CustomerRegister.vue'),
       meta: { requiresAuth: false }
     },
@@ -163,6 +177,12 @@ const router = createRouter({
       name: 'CustomerPortal',
       component: () => import('@/views/CustomerPortal.vue'),
       meta: { requiresCustomerAuth: true }
+    },
+    {
+      path: '/dashboard',
+      name: 'Dashboard',
+      component: () => import('@/views/Dashboard.vue'),
+      meta: { requiresAuth: true }
     }
   ]
 })
@@ -220,12 +240,15 @@ function checkOtherRoutes(to, next, authStore, adminAuthStore) {
     return
   }
   
-  if (to.name === 'AdminLogin' && adminAuthStore?.isAuthenticated) {
-    next('/admin')
-    return
+  if (to.name === 'CustomerLogin' || to.name === 'CustomerLoginLegacy') {
+    const customerToken = localStorage.getItem('access_token')
+    if (customerToken) {
+      next('/customer-portal')
+      return
+    }
   }
   
-  if (to.name === 'CustomerLogin') {
+  if (to.name === 'CustomerRegister' || to.name === 'CustomerRegisterLegacy') {
     const customerToken = localStorage.getItem('access_token')
     if (customerToken) {
       next('/customer-portal')

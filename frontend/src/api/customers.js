@@ -54,9 +54,18 @@ api.interceptors.response.use(
 )
 
 export const customerAPI = {
-  // Customer registration
+  // Registration endpoints
   register(customerData) {
-    return api.post('/customer/register/', customerData)
+    return api.post('/register/customer/', customerData)
+  },
+  
+  registerRider(riderData) {
+    return api.post('/register/rider/', riderData)
+  },
+  
+  // Unified registration
+  registerUnified(userData) {
+    return api.post('/register/', userData)
   },
   
   // Customer portal (login required)
@@ -84,6 +93,26 @@ export const customerAPI = {
   // Get customer orders
   getOrders() {
     return api.get('/customer/portal/')
+  },
+  
+  // Mobile app endpoints
+  getMobileVersion() {
+    return api.get('/mobile/version/')
+  },
+  
+  getMobileProfile() {
+    return api.get('/mobile/profile/')
+  },
+  
+  updateMobileProfile(profileData) {
+    return api.put('/mobile/profile/', profileData)
+  },
+  
+  registerDeviceToken(deviceToken, userType = 'customer') {
+    return api.post('/mobile/device-token/', {
+      device_token: deviceToken,
+      user_type: userType
+    })
   }
 }
 

@@ -98,35 +98,98 @@ class CustomerRegistrationView(APIView):
     permission_classes = [permissions.AllowAny]
     
     def post(self, request):
-        name = request.data.get('name')
-        email = request.data.get('email')
-        phone = request.data.get('phone')
-        address = request.data.get('address')
-        password = request.data.get('password')
+        serializer = CustomerRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            customer = serializer.save()
+            return Response({
+                'message': 'Customer registered successfully',
+                'customer': CustomerSerializer(customer).data
+            }, status=201)
+        return Response(serializer.errors, status=400)
+
+class RiderRegistrationView(APIView):
+    """Rider registration endpoint"""
+    permission_classes = [permissions.AllowAny]
+    
+    def post(self, request):
+        # Manually validate required fields
+        required_fields = ['name', 'email', 'phone', 'address', 'license_number', 'vehicle_type', 'vehicle_plate', 'password']
+        for field in required_fields:
+            if not request.data.get(field):
+                return Response({'error': f'{field} is required'}, status=400)
         
-        if not all([name, email, phone, address, password]):
-            return Response({'error': 'All fields are required'}, status=400)
+        # Check if email already exists
+        if Customer.objects.filter(email=request.data.get('email')).exists():
+            return Response({'error': 'User with this email already exists'}, status=400)
         
-        # Check if customer with email already exists
-        if Customer.objects.filter(email=email).exists():
-            return Response({'error': 'Customer with this email already exists'}, status=400)
+        try:
+            # Create customer first
+            customer_data = {
+                'name': request.data.get('name'),
+                'email': request.data.get('email'),
+                'phone': request.data.get('phone'),
+                'address': request.data.get('address'),
+                'user_type': 'rider'
+            }
+            customer = Customer.objects.create(**customer_data)
+            
+            # Create user account
+            import uuid
+            username = customer_data['email'].split('@')[0] + str(uuid.uuid4())[:8]
+            user = User.objects.create_user(
+                username=username,
+                email=customer_data['email'],
+                password=request.data.get('password'),
+                first_name=customer_data['name'].split()[0] if customer_data['name'] else '',
+                last_name=' '.join(customer_data['name'].split()[1:]) if len(customer_data['name'].split()) > 1 else ''
+            )
+            customer.user = user
+            customer.save()
+            
+            # Create driver profile
+            driver_data = {
+                'user': user,
+                'customer': customer,
+                'license_number': request.data.get('license_number'),
+                'vehicle_type': request.data.get('vehicle_type'),
+                'vehicle_plate': request.data.get('vehicle_plate'),
+                'vehicle_model': request.data.get('vehicle_model', ''),
+                'vehicle_color': request.data.get('vehicle_color', ''),
+                'vehicle_year': request.data.get('vehicle_year')
+            }
+            
+            # Filter out None values
+            driver_data = {k: v for k, v in driver_data.items() if v is not None and v != ''}
+            
+            driver = Driver.objects.create(**driver_data)
+            
+            return Response({
+                'message': 'Rider registered successfully. Awaiting approval.',
+                'driver': DriverSerializer(driver).data
+            }, status=201)
+            
+        except Exception as e:
+            return Response({'error': f'Failed to register rider: {str(e)}'}, status=400)
+
+class UnifiedRegistrationView(APIView):
+    """Unified registration endpoint for both customers and riders"""
+    permission_classes = [permissions.AllowAny]
+    
+    def post(self, request):
+        user_type = request.data.get('user_type', 'customer')
         
-        # Create user account
-        username = email.split('@')[0] + str(uuid.uuid4())[:8]
-        user = User.objects.create_user(username=username, email=email, password=password)
-        
-        # Create customer profile
-        customer = Customer.objects.create(
-            name=name,
-            email=email,
-            phone=phone,
-            address=address
-        )
-        
-        return Response({
-            'message': 'Customer registered successfully',
-            'customer': CustomerSerializer(customer).data
-        }, status=201)
+        if user_type == 'rider':
+            serializer = RiderRegistrationSerializer(data=request.data)
+        else:
+            serializer = CustomerRegistrationSerializer(data=request.data)
+            
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response({
+                'message': f'{user_type.capitalize()} registered successfully',
+                'user': CustomerSerializer(user).data if user_type != 'rider' else DriverSerializer(user).data
+            }, status=201)
+        return Response(serializer.errors, status=400)
 
 class CustomerPortalView(APIView):
     """Customer portal API for customers to manage their orders"""
@@ -299,3 +362,90 @@ class DashboardView(APIView):
             }
         
         return Response(stats)
+
+class MobileAPIVersionView(APIView):
+    """Mobile API version information"""
+    permission_classes = [permissions.AllowAny]
+    
+    def get(self, request):
+        return Response({
+            'api_version': '1.0.0',
+            'api_name': 'PinDrop Delivery API',
+            'supported_features': [
+                'customer_registration',
+                'rider_registration', 
+                'order_tracking',
+                'push_notifications',
+                'real_time_location'
+            ]
+        })
+
+class MobileUserProfileView(APIView):
+    """Mobile app user profile management"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        """Get current user profile"""
+        try:
+            # Try to get customer profile first
+            customer = Customer.objects.get(email=request.user.email)
+            return Response({
+                'profile': CustomerSerializer(customer).data,
+                'user_type': 'customer'
+            })
+        except Customer.DoesNotExist:
+            try:
+                # Try to get driver profile
+                driver = Driver.objects.get(user=request.user)
+                return Response({
+                    'profile': DriverSerializer(driver).data,
+                    'user_type': 'rider'
+                })
+            except Driver.DoesNotExist:
+                return Response({'error': 'User profile not found'}, status=404)
+    
+    def put(self, request):
+        """Update current user profile"""
+        try:
+            customer = Customer.objects.get(email=request.user.email)
+            serializer = CustomerSerializer(customer, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=400)
+        except Customer.DoesNotExist:
+            try:
+                driver = Driver.objects.get(user=request.user)
+                serializer = DriverSerializer(driver, data=request.data, partial=True)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data)
+                return Response(serializer.errors, status=400)
+            except Driver.DoesNotExist:
+                return Response({'error': 'User profile not found'}, status=404)
+
+class MobileDeviceTokenView(APIView):
+    """Register/update device token for push notifications"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request):
+        """Register device token"""
+        token = request.data.get('device_token')
+        user_type = request.data.get('user_type', 'customer')
+        
+        if not token:
+            return Response({'error': 'Device token is required'}, status=400)
+        
+        try:
+            if user_type == 'rider':
+                driver = Driver.objects.get(user=request.user)
+                driver.device_token = token
+                driver.save()
+            else:
+                customer = Customer.objects.get(email=request.user.email)
+                customer.device_token = token
+                customer.save()
+                
+            return Response({'message': 'Device token registered successfully'})
+        except (Customer.DoesNotExist, Driver.DoesNotExist):
+            return Response({'error': 'User profile not found'}, status=404)

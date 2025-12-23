@@ -456,8 +456,9 @@ class AdminDashboardViewSet(viewsets.ViewSet, AdminPermissionMixin):
     def stats(self, request):
         """Get dashboard statistics"""
         # Get basic counts
-        total_customers = Customer.objects.count()
-        total_drivers = Driver.objects.count()
+        total_customers = Customer.objects.filter(user_type__in=['customer', 'both']).count()
+        total_riders = Driver.objects.count()
+        pending_riders = Driver.objects.filter(status='pending_approval').count()
         total_deliveries = Delivery.objects.count()
         
         # Get pending deliveries
@@ -478,8 +479,8 @@ class AdminDashboardViewSet(viewsets.ViewSet, AdminPermissionMixin):
             paid_at__date=today
         ).aggregate(total=Sum('amount'))['total'] or 0
         
-        # Get active drivers
-        active_drivers = Driver.objects.filter(is_available=True).count()
+        # Get active riders
+        active_riders = Driver.objects.filter(status='active', is_available=True).count()
         
         # Calculate delivery success rate
         total_deliveries_30_days = Delivery.objects.filter(
@@ -497,12 +498,13 @@ class AdminDashboardViewSet(viewsets.ViewSet, AdminPermissionMixin):
         
         stats = {
             'total_customers': total_customers,
-            'total_drivers': total_drivers,
+            'total_riders': total_riders,
+            'pending_riders': pending_riders,
             'total_deliveries': total_deliveries,
             'pending_deliveries': pending_deliveries,
             'completed_deliveries_today': completed_deliveries_today,
             'total_revenue_today': float(total_revenue_today),
-            'active_drivers': active_drivers,
+            'active_riders': active_riders,
             'delivery_success_rate': round(delivery_success_rate, 2)
         }
         
@@ -570,3 +572,149 @@ class AdminDashboardViewSet(viewsets.ViewSet, AdminPermissionMixin):
             })
         
         return Response({'drivers': driver_data})
+
+class RiderManagementViewSet(viewsets.ViewSet, AdminPermissionMixin):
+    """ViewSet for managing riders specifically"""
+    permission_required = 'manage_drivers'
+    
+    @action(detail=False, methods=['get'])
+    def pending_approvals(self, request):
+        """Get riders pending approval"""
+        pending_riders = Driver.objects.filter(
+            status='pending_approval'
+        ).select_related('user', 'customer')
+        
+        rider_data = []
+        for rider in pending_riders:
+            rider_data.append({
+                'id': rider.id,
+                'name': rider.customer.name if rider.customer else rider.user.get_full_name(),
+                'email': rider.user.email,
+                'phone': rider.customer.phone if rider.customer else '',
+                'license_number': rider.license_number,
+                'vehicle_type': rider.vehicle_type,
+                'vehicle_plate': rider.vehicle_plate,
+                'vehicle_model': rider.vehicle_model,
+                'applied_date': rider.created_at,
+            })
+        
+        return Response({'pending_riders': rider_data})
+    
+    @action(detail=True, methods=['post'])
+    def approve_rider(self, request, pk=None):
+        """Approve a rider"""
+        try:
+            rider = Driver.objects.get(pk=pk)
+            rider.status = 'active'
+            rider.save()
+            
+            # Log the approval
+            AuditLog.objects.create(
+                user=request.user,
+                action='update',
+                model_name='Driver',
+                object_id=str(rider.id),
+                details={'action': 'approved', 'status': 'active'}
+            )
+            
+            return Response({'message': 'Rider approved successfully'})
+        except Driver.DoesNotExist:
+            return Response({'error': 'Rider not found'}, status=404)
+    
+    @action(detail=True, methods=['post'])
+    def reject_rider(self, request, pk=None):
+        """Reject a rider"""
+        reason = request.data.get('reason', 'Application rejected')
+        
+        try:
+            rider = Driver.objects.get(pk=pk)
+            rider.status = 'suspended'
+            rider.save()
+            
+            # Log the rejection
+            AuditLog.objects.create(
+                user=request.user,
+                action='update',
+                model_name='Driver',
+                object_id=str(rider.id),
+                details={'action': 'rejected', 'reason': reason}
+            )
+            
+            return Response({'message': 'Rider rejected successfully'})
+        except Driver.DoesNotExist:
+            return Response({'error': 'Rider not found'}, status=404)
+
+class UserManagementViewSet(viewsets.ViewSet, AdminPermissionMixin):
+    """ViewSet for managing both customers and riders"""
+    permission_required = 'manage_customers'
+    
+    @action(detail=False, methods=['get'])
+    def users_summary(self, request):
+        """Get summary of all users"""
+        # Get customers
+        customers = Customer.objects.all()
+        customer_summary = {
+            'total': customers.count(),
+            'active': customers.filter(status='active').count(),
+            'inactive': customers.filter(status='inactive').count(),
+            'suspended': customers.filter(status='suspended').count()
+        }
+        
+        # Get riders
+        riders = Driver.objects.all()
+        rider_summary = {
+            'total': riders.count(),
+            'active': riders.filter(status='active').count(),
+            'pending_approval': riders.filter(status='pending_approval').count(),
+            'suspended': riders.filter(status='suspended').count(),
+            'available': riders.filter(status='active', is_available=True).count()
+        }
+        
+        return Response({
+            'customers': customer_summary,
+            'riders': rider_summary
+        })
+    
+    @action(detail=False, methods=['get'])
+    def recent_registrations(self, request):
+        """Get recent user registrations"""
+        days = int(request.query_params.get('days', 7))
+        cutoff_date = timezone.now() - timedelta(days=days)
+        
+        # Recent customer registrations
+        recent_customers = Customer.objects.filter(
+            created_at__gte=cutoff_date
+        ).order_by('-created_at')[:10]
+        
+        # Recent rider registrations
+        recent_riders = Driver.objects.filter(
+            created_at__gte=cutoff_date
+        ).order_by('-created_at')[:10]
+        
+        customer_data = []
+        for customer in recent_customers:
+            customer_data.append({
+                'id': customer.id,
+                'name': customer.name,
+                'email': customer.email,
+                'user_type': customer.user_type,
+                'status': customer.status,
+                'registered_at': customer.created_at
+            })
+        
+        rider_data = []
+        for rider in recent_riders:
+            rider_data.append({
+                'id': rider.id,
+                'name': rider.user.get_full_name(),
+                'email': rider.user.email,
+                'vehicle_type': rider.vehicle_type,
+                'vehicle_plate': rider.vehicle_plate,
+                'status': rider.status,
+                'registered_at': rider.created_at
+            })
+        
+        return Response({
+            'recent_customers': customer_data,
+            'recent_riders': rider_data
+        })

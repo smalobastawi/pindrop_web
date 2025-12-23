@@ -5,7 +5,7 @@
       <div class="col-md-6 col-lg-4">
         <div class="card shadow">
           <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">Customer Login</h4>
+            <h4 class="mb-0">User Login</h4>
           </div>
           <div class="card-body">
             <form @submit.prevent="handleLogin">
@@ -51,6 +51,12 @@
               <p>Don't have an account? 
                 <router-link to="/customer-register" class="text-decoration-none">
                   Register here
+                </router-link>
+              </p>
+              <p class="small">
+                New rider? 
+                <router-link to="/customer-register" class="text-decoration-none">
+                  Apply to become a rider
                 </router-link>
               </p>
             </div>
