@@ -1,4 +1,3 @@
-// frontend/vite.config.js
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -24,7 +23,11 @@ export default defineConfig({
     }
   },
   build: {
-    outDir: '../templates/frontend', // Output to Django templates
+    // For development/testing - outputs to dist
+    outDir: process.env.NODE_ENV === 'production' 
+      ? '../templates/frontend' 
+      : 'dist',
+    
     emptyOutDir: true,
     rollupOptions: {
       output: {
