@@ -21,6 +21,10 @@ templates/frontend/assets/
 !templates/frontend/index.html
 !templates/frontend/favicon.ico
 
+# Vue.js build output
+frontend/dist/
+frontend/dist-ssr/
+
 # Flutter / Dart
 .flutter-plugins
 .flutter-plugins-dependencies
