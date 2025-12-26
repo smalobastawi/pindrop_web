@@ -51,7 +51,7 @@ class RiderSerializer(serializers.ModelSerializer):
         read_only_fields = ('created_at', 'updated_at', 'rating', 'completed_deliveries')
 
 class CustomerRegistrationSerializer(serializers.Serializer):
-    username = serializers.CharField()
+    username = serializers.CharField(required=False)
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
     first_name = serializers.CharField()
@@ -60,19 +60,27 @@ class CustomerRegistrationSerializer(serializers.Serializer):
     address = serializers.CharField()
     preferred_language = serializers.CharField(default='en')
     push_enabled = serializers.BooleanField(default=True)
-    
+
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError("User with this email already exists.")
         return value
-    
+
+    def validate_username(self, value):
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError("User with this username already exists.")
+        return value
+
     def validate_password(self, value):
         validate_password(value)
         return value
-    
+
     def create(self, validated_data):
+        # Use email as username for consistency with login
+        username = validated_data.get('username', validated_data['email'])
+
         user = User.objects.create_user(
-            username=validated_data['username'],
+            username=username,
             email=validated_data['email'],
             password=validated_data['password'],
             first_name=validated_data['first_name'],

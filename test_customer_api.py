@@ -11,41 +11,42 @@ BASE_URL = "http://localhost:8000/api"
 def test_customer_registration():
     """Test customer registration"""
     print("Testing customer registration...")
-    
+
     customer_data = {
-        "name": "John Doe",
-        "email": "john.doe.test@example.com",
+        "first_name": "John",
+        "last_name": "Doe",
+        "email": "john.doe.test2@example.com",
         "phone": "+1234567890",
         "address": "123 Test Street, Test City, TC 12345",
         "password": "testpassword123"
     }
-    
-    response = requests.post(f"{BASE_URL}/customer/register/", json=customer_data)
-    
+
+    response = requests.post(f"{BASE_URL}/register/customer/", json=customer_data)
+
     if response.status_code == 201:
-        print("✅ Customer registration successful")
+        print("Customer registration successful")
         return response.json()
     else:
-        print(f"❌ Customer registration failed: {response.status_code}")
+        print(f"Customer registration failed: {response.status_code}")
         print(f"Response: {response.text}")
         return None
 
 def test_customer_login(email, password):
     """Test customer login"""
     print("Testing customer login...")
-    
+
     login_data = {
-        "email": email,
+        "username": email,
         "password": password
     }
-    
+
     response = requests.post(f"{BASE_URL}/token/", json=login_data)
-    
+
     if response.status_code == 200:
-        print("✅ Customer login successful")
+        print("Customer login successful")
         return response.json()
     else:
-        print(f"❌ Customer login failed: {response.status_code}")
+        print(f"Customer login failed: {response.status_code}")
         print(f"Response: {response.text}")
         return None
 
@@ -113,7 +114,7 @@ def main():
     print()
     
     # Test 2: Customer Login
-    email = "john.doe.test@example.com"
+    email = "john.doe.test2@example.com"
     password = "testpassword123"
     login_result = test_customer_login(email, password)
     if not login_result:
