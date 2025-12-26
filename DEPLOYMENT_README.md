@@ -15,22 +15,24 @@ This guide provides step-by-step instructions for updating your live server with
 
 ### **Local Preparation (Before Server Deployment):**
 
-1. **Build frontend locally:**
+1. **Build frontend locally to dist folder:**
 
 ```bash
 cd frontend
 npm install
-npm run build
+npm run build  # Builds to dist folder (default Vite output)
 cd ..
 ```
 
-2. **Commit built files:**
+2. **Commit built files (force add since dist is ignored):**
 
 ```bash
-git add .
+git add frontend/dist/ --force
 git commit -m "Build frontend for production deployment"
 git push origin main  # Adjust branch if different
 ```
+
+**Note:** The `frontend/dist/` folder contains the built frontend files that will be served directly by your web server (Nginx). Since `frontend/dist/` is ignored by `.gitignore`, you need to use `--force` to add it to git.
 
 ### **Server Deployment:**
 
@@ -43,7 +45,7 @@ ssh your-user@your-server-ip
 2. **Navigate to project directory**
 
 ```bash
-cd /path/to/your/pindrop_web
+cd /var/www/dev/pindrop_web  # Based on your Nginx config
 ```
 
 3. **Backup current deployment (recommended)**
@@ -58,19 +60,29 @@ cp -r . ../pindrop_backup_$(date +%Y%m%d_%H%M%S)
 git pull origin main  # Adjust branch if different
 ```
 
-5. **Activate virtual environment**
+5. **Verify frontend files are deployed**
 
 ```bash
-source venv/bin/activate  # Adjust path if different
+# Check if frontend/dist exists and has files
+ls -la frontend/dist/
+
+# If dist folder is missing, force pull the specific folder
+git checkout HEAD -- frontend/dist/
 ```
 
-6. **Install/update dependencies**
+6. **Activate virtual environment**
+
+```bash
+source myenv/bin/activate  # Based on supervisor config
+```
+
+7. **Install/update dependencies**
 
 ```bash
 pip install -r requirements.txt
 ```
 
-7. **Configure environment (if needed)**
+8. **Configure environment (if needed)**
    Ensure your `.env` file has production values:
 
 ```bash
@@ -82,48 +94,51 @@ DB_USER=your-db-user
 DB_PASSWORD=your-db-password
 DB_HOST=localhost
 DB_PORT=5432
-ALLOWED_HOSTS=your-domain.com,www.your-domain.com
+ALLOWED_HOSTS=riderapp.testrunner.co.ke
 ```
 
-8. **Run fresh database migrations**
+9. **Run fresh database migrations**
 
 ```bash
 python manage.py migrate --run-syncdb
 ```
 
-9. **Create superuser (if needed)**
+10. **Create superuser (if needed)**
 
 ```bash
 python manage.py createsuperuser
 ```
 
-10. **Collect static files**
+11. **Collect static files**
 
 ```bash
 python manage.py collectstatic --noinput
 ```
 
-11. **Restart services**
+12. **Restart services**
 
 ```bash
-# Restart Django application (adjust service name)
-sudo systemctl restart pindrop-web
+# Restart Django application via supervisor
+sudo supervisorctl restart mydjangoapp
 
 # Restart Nginx
 sudo systemctl restart nginx
 ```
 
-12. **Verify deployment**
+13. **Verify deployment**
 
 ```bash
-# Check Django logs
-sudo journalctl -u pindrop-web -f
+# Check Django logs via supervisor
+sudo supervisorctl tail -f mydjangoapp
 
 # Test API endpoint
-curl https://your-domain.com/api/health/
+curl https://riderapp.testrunner.co.ke/api/health/
 
 # Check database
 python manage.py dbshell -c "SELECT 1;"
+
+# Clear browser cache and test frontend
+# Visit: https://riderapp.testrunner.co.ke
 ```
 
 ## Automated Deployment
@@ -210,6 +225,51 @@ If deployment fails:
 cp -r ../pindrop_backup_DATE/* .
 
 # Restart services
-sudo systemctl restart pindrop-web
+sudo supervisorctl restart mydjangoapp
 sudo systemctl restart nginx
+```
+
+## Troubleshooting: Why Changes Aren't Reflecting
+
+### **Common Issues:**
+
+1. **Frontend files not deployed:**
+
+   - `frontend/dist/` is ignored by git
+   - Solution: Use `git add frontend/dist/ --force` locally
+
+2. **Wrong virtual environment:**
+
+   - Your supervisor uses `/var/www/dev/pindrop_web/myenv/`
+   - Make sure deployment script uses the same path
+
+3. **Services not restarting:**
+
+   - Use `sudo supervisorctl restart mydjangoapp` (not systemctl)
+   - Django runs on port 8001, not 8000
+
+4. **Browser cache:**
+
+   - Hard refresh (Ctrl+F5) or clear browser cache
+
+5. **Nginx caching:**
+   - Restart Nginx: `sudo systemctl restart nginx`
+
+### **Debug Steps:**
+
+```bash
+# Check if supervisor service is running
+sudo supervisorctl status mydjangoapp
+
+# Check Django logs
+sudo supervisorctl tail -f mydjangoapp
+
+# Verify frontend files exist
+ls -la /var/www/dev/pindrop_web/frontend/dist/
+
+# Test direct API access
+curl http://localhost:8001/api/health/
+
+# Check Nginx error logs
+sudo tail -f /var/log/nginx/error.log
 ```
