@@ -90,7 +90,7 @@
                   </div>
                   <div class="col-md-6">
                     <label for="licenseExpiry" class="form-label">License Expiry Date</label>
-                    <input type="date" class="form-control" id="licenseExpiry" v-model="form.licenseExpiry" required>
+                    <input type="date" class="form-control" id="licenseExpiry" v-model="form.licenseExpiry" :min="today" required>
                   </div>
                 </div>
               </div>
@@ -170,7 +170,7 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import axios from 'axios';
@@ -187,6 +187,11 @@ export default {
     const authStore = useAuthStore();
     const loading = ref(false);
     const identityDocumentPreview = ref(null);
+
+    const today = computed(() => {
+      const date = new Date();
+      return date.toISOString().split('T')[0];
+    });
     
     const form = ref({
       firstName: '',
@@ -258,6 +263,14 @@ export default {
         alert('License number is required!');
         return;
       }
+      if (!form.value.licenseExpiry) {
+        alert('License expiry date is required!');
+        return;
+      }
+      if (form.value.licenseExpiry < today.value) {
+        alert('License expiry date cannot be in the past!');
+        return;
+      }
       if (!form.value.vehicleType) {
         alert('Vehicle type is required!');
         return;
@@ -307,8 +320,8 @@ export default {
           // Try to auto-login
           try {
             const loginResponse = await axios.post('/api/token/', {
-              username: form.email,
-              password: form.password
+              username: form.value.username,
+              password: form.value.password
             })
 
             // Store tokens
@@ -338,6 +351,7 @@ export default {
       form,
       loading,
       identityDocumentPreview,
+      today,
       handleIdentityDocumentUpload,
       registerRider
     };
