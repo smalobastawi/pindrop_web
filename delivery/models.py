@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 import uuid
+import os
 
 class UserProfile(models.Model):
     """Unified user profile that can be both customer and rider"""
@@ -385,7 +386,7 @@ class Payment(models.Model):
     
     # Payment details
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='USD')
+    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default=os.getenv('CURRENCY', 'KES'))
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS)
     status = models.CharField(max_length=20, choices=PAYMENT_STATUS, default='pending')
     

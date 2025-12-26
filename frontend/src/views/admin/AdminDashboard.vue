@@ -44,7 +44,7 @@
             <i class="icon-dollar-sign"></i>
           </div>
           <div class="stat-content">
-            <h3>${{ (parseFloat(dashboardStats.total_revenue_today) || 0).toFixed(2) }}</h3>
+            <h3>{{ formatCurrency((parseFloat(dashboardStats.total_revenue_today) || 0).toFixed(2)) }}</h3>
             <p>Revenue Today</p>
           </div>
         </div>
@@ -211,6 +211,13 @@ export default {
   },
   setup() {
     const adminAuthStore = useAdminAuthStore()
+
+    const formatCurrency = (amount) => {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'KES'
+      }).format(amount)
+    }
     
     // Reactive state
     const dashboardStats = ref({})

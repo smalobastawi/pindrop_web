@@ -54,7 +54,7 @@
       
       <div class="row">
         <div class="col-md-6 mb-3">
-          <label for="value" class="form-label">Package Value ($)</label>
+          <label for="value" class="form-label">Package Value (KSh)</label>
           <input
             type="number"
             step="0.01"
@@ -167,7 +167,7 @@
           </select>
         </div>
         <div class="col-md-6 mb-3">
-          <label for="amount" class="form-label">Amount ($)</label>
+          <label for="amount" class="form-label">Amount (KSh)</label>
           <input
             type="number"
             step="0.01"
@@ -180,10 +180,10 @@
       </div>
       
       <div class="alert alert-info">
-        <strong>Estimated Cost:</strong> 
-        Base: ${{ calculateBaseCost() }} | 
-        Priority: {{ getPriorityText() }} | 
-        <strong>Total: ${{ form.payment.amount }}</strong>
+        <strong>Estimated Cost:</strong>
+        Base: {{ formatCurrency(calculateBaseCost()) }} |
+        Priority: {{ getPriorityText() }} |
+        <strong>Total: {{ formatCurrency(form.payment.amount) }}</strong>
       </div>
     </div>
 
@@ -240,8 +240,15 @@ const form = reactive({
 // Calculate delivery cost
 const calculateBaseCost = () => {
   const weight = parseFloat(form.package.weight) || 0
-  const baseRate = 10 // $10 per kg
+  const baseRate = 10 // KSh 10 per kg
   return (weight * baseRate).toFixed(2)
+}
+
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'KES'
+  }).format(amount)
 }
 
 const getPriorityText = () => {

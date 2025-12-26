@@ -53,14 +53,14 @@
               <div class="col-md-6">
                 <label class="form-label">Base Delivery Fee</label>
                 <div class="input-group">
-                  <span class="input-group-text">$</span>
+                  <span class="input-group-text">KSh</span>
                   <input v-model.number="settings.delivery.base_fee" type="number" step="0.01" class="form-control" />
                 </div>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Fee per Kilogram</label>
                 <div class="input-group">
-                  <span class="input-group-text">$</span>
+                  <span class="input-group-text">KSh</span>
                   <input v-model.number="settings.delivery.fee_per_kg" type="number" step="0.01" class="form-control" />
                 </div>
               </div>
@@ -302,7 +302,7 @@ const settings = ref({
     accept_card: true,
     accept_mobile: true,
     accept_bank: false,
-    currency: 'USD',
+    currency: 'KES',
     tax_rate: 16.0
   }
 })

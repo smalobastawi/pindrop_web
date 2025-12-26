@@ -24,7 +24,7 @@
           </div>
           <div class="stat-card">
             <h3>Total Earnings</h3>
-            <p>${{ stats.total_earnings }}</p>
+            <p>{{ formatCurrency(stats.total_earnings) }}</p>
           </div>
           <div class="stat-card">
             <h3>Rating</h3>
@@ -58,7 +58,7 @@
                 <p><strong>Pickup:</strong> {{ delivery.pickup_address }}</p>
                 <p><strong>Delivery:</strong> {{ delivery.delivery_address }}</p>
                 <p><strong>Estimated Delivery:</strong> {{ delivery.estimated_delivery }}</p>
-                <p v-if="delivery.payment"><strong>Fee:</strong> ${{ delivery.delivery_fee }}</p>
+                <p v-if="delivery.payment"><strong>Fee:</strong> {{ formatCurrency(delivery.delivery_fee) }}</p>
               </div>
             </div>
           </div>
@@ -86,6 +86,12 @@ export default {
     this.fetchData()
   },
   methods: {
+    formatCurrency(amount) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'KES'
+      }).format(amount)
+    },
     async fetchData() {
       try {
         const token = localStorage.getItem('access_token')

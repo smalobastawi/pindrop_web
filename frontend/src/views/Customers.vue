@@ -254,7 +254,7 @@ const formatDate = (dateString) => {
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD'
+    currency: import.meta.env.VITE_CURRENCY || 'KES'
   }).format(amount)
 }
 

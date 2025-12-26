@@ -83,7 +83,7 @@
           <div class="card text-white bg-info">
             <div class="card-body">
               <h5 class="card-title">Total Spent</h5>
-              <p class="card-text display-6">${{ portalData.stats.total_spent || 0 }}</p>
+              <p class="card-text display-6">{{ formatCurrency(portalData.stats.total_spent || 0) }}</p>
             </div>
           </div>
         </div>
@@ -144,7 +144,7 @@
                             {{ order.status.replace('_', ' ').toUpperCase() }}
                           </span>
                         </td>
-                        <td>${{ order.delivery_fee }}</td>
+                        <td>{{ formatCurrency(order.delivery_fee) }}</td>
                         <td>
                           <span v-if="order.payment" :class="`badge bg-${getPaymentStatusColor(order.payment.status)}`">
                             {{ order.payment.status.toUpperCase() }}
@@ -300,6 +300,13 @@ const getPaymentStatusColor = (status) => {
 
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString()
+}
+
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'KES'
+  }).format(amount)
 }
 
 onMounted(() => {

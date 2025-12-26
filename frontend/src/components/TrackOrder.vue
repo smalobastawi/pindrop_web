@@ -72,7 +72,7 @@
           <h6>Payment Information</h6>
           <div class="row">
             <div class="col-md-4">
-              <strong>Amount:</strong> ${{ trackingData.payment.amount }}
+              <strong>Amount:</strong> {{ formatCurrency(trackingData.payment.amount) }}
             </div>
             <div class="col-md-4">
               <strong>Method:</strong> {{ trackingData.payment.payment_method.toUpperCase() }}
@@ -188,6 +188,13 @@ const getPaymentStatusColor = (status) => {
 
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleString()
+}
+
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'KES'
+  }).format(amount)
 }
 </script>
 

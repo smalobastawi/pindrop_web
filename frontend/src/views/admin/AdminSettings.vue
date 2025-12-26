@@ -113,8 +113,8 @@
               <div class="setting-item">
                 <label for="base_delivery_fee">Base Delivery Fee</label>
                 <div class="input-group">
-                  <span class="input-prefix">$</span>
-                  <input 
+                  <span class="input-prefix">KSh</span>
+                  <input
                     id="base_delivery_fee"
                     v-model="settings.base_delivery_fee"
                     type="number"
@@ -129,8 +129,8 @@
               <div class="setting-item">
                 <label for="fee_per_km">Fee Per Kilometer</label>
                 <div class="input-group">
-                  <span class="input-prefix">$</span>
-                  <input 
+                  <span class="input-prefix">KSh</span>
+                  <input
                     id="fee_per_km"
                     v-model="settings.fee_per_km"
                     type="number"
