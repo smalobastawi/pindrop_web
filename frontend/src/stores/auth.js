@@ -14,17 +14,17 @@ export const useAuthStore = defineStore('auth', () => {
   const login = async (credentials) => {
     try {
       const response = await axios.post('/api/token/', credentials)
-  
+
       accessToken.value = response.data.access
       refreshToken.value = response.data.refresh
-  
+
       localStorage.setItem('access_token', response.data.access)
       localStorage.setItem('refresh_token', response.data.refresh)
-  
+
       // Fetch user data
       await fetchUser()
-  
-      router.push('/dashboard')
+
+      // Do not push here, let the calling component handle redirect based on role
       return { success: true }
     } catch (error) {
       return {

@@ -99,24 +99,38 @@ const form = reactive({
 const handleLogin = async () => {
   error.value = ''
   loading.value = true
-  
+
   try {
     const response = await axios.post('/api/token/', {
       username: form.username,
       password: form.password
     })
-    
+
     const { access, refresh } = response.data
-    
+
     // Store tokens
     localStorage.setItem('access_token', access)
     localStorage.setItem('refresh_token', refresh)
-    
+
+    // Fetch user profile to determine role
+    const userResponse = await axios.get('/api/user/', {
+      headers: { Authorization: `Bearer ${access}` }
+    })
+
+    const userType = userResponse.data.user_type
+
     toast.success('Login successful!')
-    
-    // Redirect to customer portal
-    router.push('/customer-portal')
-    
+
+    // Redirect based on role
+    if (userType === 'rider' || userType === 'both') {
+      router.push('/rider-portal')
+    } else if (userType === 'customer') {
+      router.push('/customer-portal')
+    } else {
+      // Admin or other
+      router.push('/dashboard')
+    }
+
   } catch (err) {
     error.value = err.response?.data?.detail || 'Login failed. Please check your credentials.'
     toast.error(error.value)

@@ -101,10 +101,24 @@ const login = async () => {
       username: credentials.value.username,
       password: credentials.value.password
     })
-    
+
     if (response.success) {
-      // Redirect to rider portal
-      router.push('/rider-portal')
+      // Fetch user profile to determine role
+      const userResponse = await axios.get('/api/user/', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+      })
+
+      const userType = userResponse.data.user_type
+
+      // Redirect based on role
+      if (userType === 'rider' || userType === 'both') {
+        router.push('/rider-portal')
+      } else if (userType === 'customer') {
+        router.push('/customer-portal')
+      } else {
+        // Admin or other
+        router.push('/dashboard')
+      }
     } else {
       error.value = response.error || 'Invalid username or password'
     }
