@@ -1,5 +1,11 @@
 <template>
-  <div class="container mt-5">
+    <CommonHeader />
+    <br>
+    <br>
+  <div class="registration-page">
+
+
+    <div class="container mt-5">
     <div class="row justify-content-center">
       <div class="col-md-8">
         <div class="card shadow">
@@ -156,6 +162,10 @@
         </div>
       </div>
     </div>
+
+    <!-- Common Footer -->
+    <CommonFooter />
+  </div>
   </div>
 </template>
 
@@ -164,8 +174,14 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import axios from 'axios';
+import CommonHeader from '@/components/layout/CommonHeader.vue';
+import CommonFooter from '@/components/layout/CommonFooter.vue';
 
 export default {
+  components: {
+    CommonHeader,
+    CommonFooter
+  },
   setup() {
     const router = useRouter();
     const authStore = useAuthStore();

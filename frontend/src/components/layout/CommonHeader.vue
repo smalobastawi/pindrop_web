@@ -14,11 +14,25 @@
             <router-link to="/" class="nav-link">Home</router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/customer-login" class="nav-link">Customer Login</router-link>
+            <a href="#features" class="nav-link">Features</a>
           </li>
           <li class="nav-item">
-            <router-link to="/rider-login" class="nav-link">Rider Login</router-link>
+            <a href="#how-it-works" class="nav-link">How It Works</a>
           </li>
+          <li class="nav-item">
+            <a href="#customers" class="nav-link">Customers</a>
+          </li>
+          <li class="nav-item">
+            <a href="#riders" class="nav-link">Riders</a>
+          </li>
+          <li class="nav-item">
+            <a href="#pricing" class="nav-link">Pricing</a>
+          </li>
+         
+          <li class="nav-item">
+            <router-link to="/customer-login" class="nav-link">Login</router-link>
+          </li>
+         
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="registerDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               Register

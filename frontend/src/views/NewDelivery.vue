@@ -165,11 +165,20 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import AddressSelector from '@/components/AddressSelector.vue'
 
 const router = useRouter()
+const authStore = useAuthStore()
+
+onMounted(() => {
+  // Redirect riders away from delivery creation
+  if (authStore.user && authStore.user.user_type === 'rider') {
+    router.push('/rider-portal')
+  }
+})
 
 const form = ref({
   customer_id: '',

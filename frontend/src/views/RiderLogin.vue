@@ -57,9 +57,9 @@
               </router-link>
             </div>
             <div class="mt-2 text-center">
-              <router-link to="/customer-login" class="text-decoration-none">
+              <button @click="$router.push('/customer-login')" class="btn btn-outline-primary">
                 Customer Login
-              </router-link>
+              </button>
             </div>
           </div>
         </div>
@@ -103,8 +103,8 @@ const login = async () => {
     })
     
     if (response.success) {
-      // Redirect to rider dashboard or deliveries page
-      router.push('/deliveries')
+      // Redirect to rider portal
+      router.push('/rider-portal')
     } else {
       error.value = response.error || 'Invalid username or password'
     }

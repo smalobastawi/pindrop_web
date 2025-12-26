@@ -43,8 +43,11 @@
             <div class="col-12">
               <div class="d-flex justify-content-between align-items-center">
                 <h2>Customer Portal</h2>
-                <div>
-                  <span class="me-3">Welcome, {{ customerData?.name || 'Customer' }}</span>
+                <div class="d-flex align-items-center">
+                  <div class="user-avatar me-3">
+                    {{ customerData?.user?.first_name || 'Customer' }}
+                  </div>
+                  <span class="me-3">Welcome, {{ customerData?.user?.first_name || 'Customer' }}</span>
                   <button @click="handleLogout" class="btn btn-outline-danger btn-sm">
                     Logout
                   </button>
@@ -348,6 +351,16 @@ onMounted(() => {
 .card {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.user-avatar {
+  background-color: #007bff;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 14px;
+  display: inline-block;
 }
 
 .modal.show {

@@ -86,12 +86,15 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { toast } from 'vue3-toastify'
 
+const router = useRouter()
 const stats = ref({})
 const deliveries = ref([])
 const userStatus = ref('')
+const userType = ref('')
 
 const fetchDashboardData = async () => {
   try {
@@ -104,6 +107,9 @@ const fetchDashboardData = async () => {
     stats.value = statsRes.data
     deliveries.value = deliveriesRes.data.results
     userStatus.value = userRes.data.profile?.status || ''
+    userType.value = userRes.data.profile?.user_type || 'customer'
+
+    // Dashboard content is role-based, no redirect needed
   } catch (error) {
     toast.error('Failed to fetch dashboard data')
     console.error('Dashboard error:', error)

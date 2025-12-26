@@ -62,9 +62,9 @@
               </router-link>
             </div>
             <div class="mt-2 text-center">
-              <router-link to="/rider-login" class="text-decoration-none">
+              <button @click="$router.push('/rider-login')" class="btn btn-outline-primary">
                 Rider Login
-              </router-link>
+              </button>
             </div>
           </div>
         </div>

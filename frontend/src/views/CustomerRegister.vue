@@ -1,9 +1,11 @@
 <!-- frontend/src/views/CustomerRegister.vue -->
 <template>
+   <CommonHeader />
+    <br>
+    <br>
+    <br>
   <div class="registration-page">
-    <!-- Common Header -->
-    <CommonHeader />
-    
+  
     <div class="container mt-5">
       <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">

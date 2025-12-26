@@ -45,7 +45,7 @@ class DeliveryViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         queryset = super().get_queryset()
-        
+
         try:
             user_profile = UserProfile.objects.get(user=user)
             if user_profile.user_type in ['rider', 'both']:
@@ -54,6 +54,16 @@ class DeliveryViewSet(viewsets.ModelViewSet):
                 return queryset.filter(sender=user_profile)
         except UserProfile.DoesNotExist:
             return queryset.none()
+
+    def create(self, request, *args, **kwargs):
+        try:
+            user_profile = UserProfile.objects.get(user=request.user)
+            if user_profile.user_type in ['rider']:
+                return Response({'error': 'Riders are not allowed to create deliveries'}, status=403)
+        except UserProfile.DoesNotExist:
+            return Response({'error': 'User profile not found'}, status=404)
+
+        return super().create(request, *args, **kwargs)
 
     @action(detail=True, methods=['post'])
     def update_status(self, request, pk=None):
