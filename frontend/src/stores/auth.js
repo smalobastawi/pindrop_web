@@ -13,23 +13,23 @@ export const useAuthStore = defineStore('auth', () => {
 
   const login = async (credentials) => {
     try {
-      const response = await axios.post('/token/', credentials)
-      
+      const response = await axios.post('/api/token/', credentials)
+  
       accessToken.value = response.data.access
       refreshToken.value = response.data.refresh
-      
+  
       localStorage.setItem('access_token', response.data.access)
       localStorage.setItem('refresh_token', response.data.refresh)
-      
+  
       // Fetch user data
       await fetchUser()
-      
+  
       router.push('/dashboard')
       return { success: true }
     } catch (error) {
-      return { 
-        success: false, 
-        error: error.response?.data?.detail || 'Login failed' 
+      return {
+        success: false,
+        error: error.response?.data?.detail || 'Login failed'
       }
     }
   }
@@ -59,6 +59,24 @@ export const useAuthStore = defineStore('auth', () => {
     fetchUser()
   }
 
+  const registerRider = async (registrationData) => {
+    try {
+      const response = await axios.post('/api/register/rider/', registrationData)
+      
+      return {
+        success: true,
+        message: 'Rider registration successful',
+        data: response.data
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.response?.data?.detail || 'Registration failed',
+        error: error.response?.data
+      }
+    }
+  }
+
   return {
     user,
     accessToken,
@@ -66,6 +84,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     login,
     logout,
-    fetchUser
+    fetchUser,
+    registerRider
   }
 })

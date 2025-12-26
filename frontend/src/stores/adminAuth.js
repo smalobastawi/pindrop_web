@@ -154,7 +154,7 @@ export const useAdminAuthStore = defineStore('adminAuth', {
               return axios(originalRequest)
             } catch (refreshError) {
               await this.logout()
-              window.location.href = '/admin-login'
+              window.location.href = '/login'
               return Promise.reject(refreshError)
             }
           }

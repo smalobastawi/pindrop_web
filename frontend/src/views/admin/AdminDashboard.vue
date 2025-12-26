@@ -44,7 +44,7 @@
             <i class="icon-dollar-sign"></i>
           </div>
           <div class="stat-content">
-            <h3>${{ dashboardStats.total_revenue_today?.toFixed(2) || '0.00' }}</h3>
+            <h3>${{ (parseFloat(dashboardStats.total_revenue_today) || 0).toFixed(2) }}</h3>
             <p>Revenue Today</p>
           </div>
         </div>
@@ -237,25 +237,25 @@ export default {
     const loadDashboardData = async () => {
       try {
         // Load dashboard statistics
-        const statsResponse = await axios.get('/admin-api/dashboard/stats/')
+        const statsResponse = await axios.get('/admin-api/api/dashboard/stats/')
         dashboardStats.value = statsResponse.data
-        
+
         // Load recent activities
-        const activitiesResponse = await axios.get('/admin-api/dashboard/recent-activities?limit=10')
+        const activitiesResponse = await axios.get('/admin-api/api/dashboard/recent-activities/?limit=10')
         recentActivities.value = activitiesResponse.data.activities || []
-        
+
         // Load delivery trends
-        const trendsResponse = await axios.get('/admin-api/dashboard/delivery_trends/')
+        const trendsResponse = await axios.get('/admin-api/api/dashboard/delivery_trends/')
         deliveryTrends.value = trendsResponse.data.trends || []
-        
+
         // Load driver performance
-        const driversResponse = await axios.get('/admin-api/dashboard/driver_performance/')
+        const driversResponse = await axios.get('/admin-api/api/dashboard/driver_performance/')
         topDrivers.value = driversResponse.data.drivers || []
-        
+
         // Create trend chart
         await nextTick()
         createTrendChart()
-        
+
       } catch (error) {
         console.error('Failed to load dashboard data:', error)
       }

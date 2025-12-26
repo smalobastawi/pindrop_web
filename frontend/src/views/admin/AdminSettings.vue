@@ -512,7 +512,7 @@ export default {
     // Methods
     const loadSettings = async () => {
       try {
-        const response = await axios.get('/admin-api/settings/')
+        const response = await axios.get('/admin-api/api/settings/')
         const settingsData = response.data.results || response.data
         
         // Update form with loaded settings
@@ -546,11 +546,11 @@ export default {
         // Save settings in batches
         for (const setting of settingsToSave) {
           try {
-            await axios.post('/admin-api/settings/', setting)
+            await axios.post('/admin-api/api/settings/', setting)
           } catch (error) {
             // If it exists, update it
             if (error.response?.status === 400) {
-              await axios.put(`/admin-api/settings/${setting.key}/`, setting)
+              await axios.put(`/admin-api/api/settings/${setting.key}/`, setting)
             } else {
               throw error
             }

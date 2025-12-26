@@ -7,12 +7,6 @@ const router = createRouter({
   routes: [
     // Admin routes
     {
-      path: '/admin-login',
-      name: 'AdminLogin',
-      component: () => import('@/views/admin/AdminLogin.vue'),
-      meta: { requiresAdminAuth: false }
-    },
-    {
       path: '/admin',
       name: 'AdminDashboard',
       component: () => import('@/views/admin/AdminDashboard.vue'),
@@ -34,6 +28,12 @@ const router = createRouter({
       path: '/admin/deliveries',
       name: 'AdminDeliveries',
       component: () => import('@/views/admin/AdminDeliveries.vue'),
+      meta: { requiresAdminAuth: true }
+    },
+    {
+      path: '/admin/deliveries/new',
+      name: 'AdminNewDelivery',
+      component: () => import('@/views/admin/AdminNewDelivery.vue'),
       meta: { requiresAdminAuth: true }
     },
     {
@@ -144,18 +144,18 @@ const router = createRouter({
       path: '/settings',
       name: 'Settings',
       component: () => import('@/views/Settings.vue'),
-      meta: { requiresAuth: true }
+      meta: { requiresAdminAuth: true }
     },
     
     // Customer routes
     {
-      path: '/login',
+      path: '/customer-portal/login',
       name: 'CustomerLogin',
       component: () => import('@/views/CustomerLogin.vue'),
       meta: { requiresAuth: false }
     },
     {
-      path: '/register',
+      path: '/customer-portal/register',
       name: 'CustomerRegister',
       component: () => import('@/views/CustomerRegister.vue'),
       meta: { requiresAuth: false }
@@ -176,13 +176,25 @@ const router = createRouter({
       path: '/customer-portal',
       name: 'CustomerPortal',
       component: () => import('@/views/CustomerPortal.vue'),
-      meta: { requiresCustomerAuth: true }
+      meta: { requiresCustomerAuth: true, title: 'Customer Portal' }
     },
     {
       path: '/dashboard',
       name: 'Dashboard',
       component: () => import('@/views/Dashboard.vue'),
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/rider-register',
+      name: 'RiderRegister',
+      component: () => import('@/views/RiderRegister.vue'),
+      meta: { requiresAuth: false }
+    },
+    {
+      path: '/rider-login',
+      name: 'RiderLogin',
+      component: () => import('@/views/RiderLogin.vue'),
+      meta: { requiresAuth: false }
     }
   ]
 })
@@ -201,14 +213,14 @@ router.beforeEach((to, from, next) => {
       adminAuthStore = useAdminAuthStore()
       
       if (!adminAuthStore.isAuthenticated) {
-        next('/admin-login')
+        next('/login')
         return
       }
       
       // Continue with other checks
       checkOtherRoutes(to, next, authStore, adminAuthStore)
     }).catch(() => {
-      next('/admin-login')
+      next('/login')
     })
     return
   }
@@ -223,7 +235,7 @@ function checkOtherRoutes(to, next, authStore, adminAuthStore) {
   if (to.meta.requiresCustomerAuth) {
     const customerToken = localStorage.getItem('access_token')
     if (!customerToken) {
-      next('/customer-login')
+      next('/customer-portal/login')
       return
     }
   }

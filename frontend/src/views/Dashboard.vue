@@ -2,7 +2,13 @@
 <template>
   <div class="dashboard">
     <h1 class="h2 mb-4">Dashboard</h1>
-    
+
+    <!-- Status Alert for Pending Approval -->
+    <div v-if="userStatus === 'pending_approval'" class="alert alert-warning alert-dismissible fade show" role="alert">
+      <strong>Account Pending Approval</strong> Your rider account is currently under review. You will be notified once approved.
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <!-- Stats Cards -->
     <div class="row mb-4">
       <div class="col-md-3">
@@ -85,16 +91,19 @@ import { toast } from 'vue3-toastify'
 
 const stats = ref({})
 const deliveries = ref([])
+const userStatus = ref('')
 
 const fetchDashboardData = async () => {
   try {
-    const [statsRes, deliveriesRes] = await Promise.all([
-      axios.get('/deliveries/dashboard_stats/'),
-      axios.get('/deliveries/?limit=5')
+    const [statsRes, deliveriesRes, userRes] = await Promise.all([
+      axios.get('/api/dashboard/'),
+      axios.get('/deliveries/?limit=5'),
+      axios.get('/api/mobile/profile/')
     ])
-    
+
     stats.value = statsRes.data
     deliveries.value = deliveriesRes.data.results
+    userStatus.value = userRes.data.profile?.status || ''
   } catch (error) {
     toast.error('Failed to fetch dashboard data')
     console.error('Dashboard error:', error)

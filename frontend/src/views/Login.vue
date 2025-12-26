@@ -1,11 +1,15 @@
 <template>
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-6">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="text-center">Admin Login</h3>
-          </div>
+  <div>
+    <!-- Common Header -->
+    <CommonHeader />
+    
+    <div class="container" style="margin-top: 100px;">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="text-center">Admin Login</h3>
+            </div>
           <div class="card-body">
             <form @submit.prevent="login">
               <div class="mb-3">
@@ -56,16 +60,22 @@
         </div>
       </div>
     </div>
+    
+    <!-- Common Footer -->
+    <CommonFooter />
+  </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { useAdminAuthStore } from '@/stores/adminAuth'
+import CommonHeader from '@/components/layout/CommonHeader.vue'
+import CommonFooter from '@/components/layout/CommonFooter.vue'
 
 const router = useRouter()
-const authStore = useAuthStore()
+const adminAuthStore = useAdminAuthStore()
 
 const credentials = ref({
   username: '',
@@ -81,21 +91,14 @@ const login = async () => {
     loading.value = true
     error.value = ''
 
-    // For demo purposes, we'll simulate authentication
-    // In a real app, this would call your auth API
-    if (credentials.value.username === 'admin' && credentials.value.password === 'admin123') {
-      // Simulate successful login
-      authStore.login({
-        username: credentials.value.username,
-        token: 'demo-jwt-token'
-      })
-      
-      router.push('/dashboard')
-    } else {
-      error.value = 'Invalid username or password'
-    }
+    await adminAuthStore.login({
+      username: credentials.value.username,
+      password: credentials.value.password
+    })
+
+    router.push('/admin')
   } catch (err) {
-    error.value = 'Login failed. Please try again.'
+    error.value = adminAuthStore.error || 'Login failed. Please try again.'
     console.error('Login error:', err)
   } finally {
     loading.value = false

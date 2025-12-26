@@ -5,6 +5,7 @@ from .views import (
     AdminUserViewSet, AdminRoleViewSet, SystemSettingsViewSet, AuditLogViewSet,
     DeliveryRouteViewSet, NotificationTemplateViewSet, SystemBackupViewSet,
     AdminDashboardViewSet, RiderManagementViewSet, UserManagementViewSet,
+    DeliveryManagementViewSet, CustomerManagementViewSet,
     admin_login, admin_token_refresh, admin_change_password
 )
 
@@ -18,7 +19,9 @@ router.register(r'templates', NotificationTemplateViewSet, basename='admin-templ
 router.register(r'backups', SystemBackupViewSet, basename='admin-backups')
 router.register(r'dashboard', AdminDashboardViewSet, basename='admin-dashboard')
 router.register(r'riders', RiderManagementViewSet, basename='admin-riders')
+router.register(r'customers', CustomerManagementViewSet, basename='admin-customers')
 router.register(r'user-management', UserManagementViewSet, basename='admin-user-management')
+router.register(r'deliveries', DeliveryManagementViewSet, basename='admin-deliveries')
 
 urlpatterns = [
     path('api/', include(router.urls)),

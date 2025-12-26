@@ -4,6 +4,7 @@ Simple test script to verify the updated API endpoints
 """
 import requests
 import json
+import time
 
 BASE_URL = "http://localhost:8000/api"
 
@@ -54,7 +55,7 @@ def test_api_endpoints():
     try:
         rider_data = {
             "name": "Test Rider",
-            "email": "rider@test.com",
+            "email": f"rider{int(time.time())}@test.com",
             "phone": "+1234567891",
             "address": "456 Test St, Test City",
             "license_number": "TEST123456",

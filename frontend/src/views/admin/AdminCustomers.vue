@@ -145,7 +145,7 @@
                       <i class="icon-user"></i>
                     </div>
                     <div>
-                      <h4>{{ customer.name }}</h4>
+                      <h4>{{ customer.full_name || customer.user_details?.username }}</h4>
                       <small>ID: {{ customer.id }}</small>
                     </div>
                   </div>
@@ -162,8 +162,8 @@
                   </div>
                 </td>
                 <td>
-                  <span :class="['status-badge', customer.is_active ? 'active' : 'inactive']">
-                    {{ customer.is_active ? 'Active' : 'Inactive' }}
+                  <span :class="['status-badge', customer.status === 'active' ? 'active' : 'inactive']">
+                    {{ customer.status_display }}
                   </span>
                 </td>
                 <td>
@@ -192,12 +192,12 @@
                     >
                       <i class="icon-edit"></i>
                     </button>
-                    <button 
+                    <button
                       @click="toggleCustomerStatus(customer)"
-                      :class="['btn-icon', customer.is_active ? 'text-warning' : 'text-success']"
-                      :title="customer.is_active ? 'Deactivate' : 'Activate'"
+                      :class="['btn-icon', customer.status === 'active' ? 'text-warning' : 'text-success']"
+                      :title="customer.status === 'active' ? 'Deactivate' : 'Activate'"
                     >
-                      <i :class="customer.is_active ? 'icon-pause' : 'icon-play'"></i>
+                      <i :class="customer.status === 'active' ? 'icon-pause' : 'icon-play'"></i>
                     </button>
                     <button 
                       @click="deleteCustomer(customer)"
@@ -339,17 +339,17 @@ export default {
           sort_by: sortBy.value
         }
         
-        const response = await axios.get('/api/customers/', { params })
+        const response = await axios.get('/admin-api/api/customers/', { params })
         customers.value = response.data.results || response.data
         totalCustomers.value = response.data.count || response.data.length
         
         // Calculate stats
         if (response.data.results) {
-          activeCustomers.value = response.data.results.filter(c => c.is_active).length
+          activeCustomers.value = response.data.results.filter(c => c.status === 'active').length
           const thisMonth = new Date()
           thisMonth.setDate(1)
           thisMonth.setHours(0, 0, 0, 0)
-          newCustomersThisMonth.value = response.data.results.filter(c => 
+          newCustomersThisMonth.value = response.data.results.filter(c =>
             new Date(c.created_at) >= thisMonth
           ).length
         }
@@ -410,9 +410,9 @@ export default {
     const saveCustomer = async (customerData) => {
       try {
         if (editingCustomer.value) {
-          await axios.put(`/api/customers/${editingCustomer.value.id}/`, customerData)
+          await axios.put(`/admin-api/api/customers/${editingCustomer.value.id}/`, customerData)
         } else {
-          await axios.post('/api/customers/', customerData)
+          await axios.post('/admin-api/api/customers/', customerData)
         }
         
         closeCustomerModal()
@@ -425,8 +425,8 @@ export default {
     
     const toggleCustomerStatus = async (customer) => {
       try {
-        await axios.patch(`/api/customers/${customer.id}/`, {
-          is_active: !customer.is_active
+        await axios.patch(`/admin-api/api/customers/${customer.id}/`, {
+          status: customer.status === 'active' ? 'inactive' : 'active'
         })
         fetchCustomers()
       } catch (error) {
@@ -441,7 +441,7 @@ export default {
       }
       
       try {
-        await axios.delete(`/api/customers/${customer.id}/`)
+        await axios.delete(`/admin-api/api/customers/${customer.id}/`)
         fetchCustomers()
       } catch (error) {
         console.error('Failed to delete customer:', error)
@@ -451,7 +451,7 @@ export default {
     
     const bulkToggleStatus = async () => {
       try {
-        await axios.patch('/api/customers/bulk_update/', {
+        await axios.patch('/admin-api/api/customers/bulk_update/', {
           customer_ids: selectedCustomers.value,
           action: 'toggle_status'
         })
@@ -469,7 +469,7 @@ export default {
       }
       
       try {
-        await axios.delete('/api/customers/bulk_delete/', {
+        await axios.delete('/admin-api/api/customers/bulk_delete/', {
           data: { customer_ids: selectedCustomers.value }
         })
         fetchCustomers()

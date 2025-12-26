@@ -3,6 +3,8 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from .models import AdminUser, AdminRole, SystemSettings, AuditLog, DeliveryRoute, NotificationTemplate, SystemBackup
+from delivery.models import UserProfile
+from main.models import Role, UserRole
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -57,7 +59,7 @@ class AdminUserCreateSerializer(serializers.ModelSerializer):
             'password': validated_data['password']
         }
         user = User.objects.create_user(**user_data)
-        
+
         # Create admin profile
         admin_data = {
             'user': user,
@@ -68,6 +70,21 @@ class AdminUserCreateSerializer(serializers.ModelSerializer):
             'employee_id': validated_data.get('employee_id', '')
         }
         admin_user = AdminUser.objects.create(**admin_data)
+
+        # Assign role based on admin role
+        role_mapping = {
+            'super_admin': 'SuperAdmin',
+            'admin': 'Admin',
+        }
+
+        role_name = role_mapping.get(validated_data['role'])
+        if role_name:
+            try:
+                role = Role.objects.get(name=role_name)
+                UserRole.objects.create(user=user, role=role)
+            except Role.DoesNotExist:
+                pass  # Role not found, continue without assigning
+
         return admin_user
 
 
@@ -185,14 +202,40 @@ class AdminLoginSerializer(serializers.Serializer):
 class AdminProfileUpdateSerializer(serializers.ModelSerializer):
     """Serializer for updating admin profile"""
     user = UserSerializer(read_only=True)
-    
+
     class Meta:
         model = AdminUser
         fields = ['phone', 'department', 'employee_id']
-    
+
     def update(self, instance, validated_data):
         instance.phone = validated_data.get('phone', instance.phone)
         instance.department = validated_data.get('department', instance.department)
         instance.employee_id = validated_data.get('employee_id', instance.employee_id)
         instance.save()
         return instance
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    """Serializer for UserProfile (drivers/riders) in admin panel"""
+    user_details = UserSerializer(source='user', read_only=True)
+    full_name = serializers.CharField(source='user.get_full_name', read_only=True)
+    email = serializers.CharField(source='user.email', read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    user_type_display = serializers.CharField(source='get_user_type_display', read_only=True)
+    vehicle_type_display = serializers.CharField(source='get_vehicle_type_display', read_only=True)
+    identity_type_display = serializers.CharField(source='get_identity_type_display', read_only=True)
+
+    class Meta:
+        model = UserProfile
+        fields = [
+            'id', 'user', 'user_details', 'full_name', 'email', 'user_type', 'user_type_display',
+            'status', 'status_display', 'phone', 'address', 'profile_image',
+            'license_number', 'license_expiry', 'vehicle_type', 'vehicle_type_display',
+            'vehicle_plate', 'vehicle_model', 'vehicle_color', 'vehicle_year',
+            'identity_type', 'identity_type_display', 'identity_number',
+            'is_available', 'current_location', 'last_location_update',
+            'rating', 'total_ratings', 'completed_deliveries',
+            'working_hours_start', 'working_hours_end',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']

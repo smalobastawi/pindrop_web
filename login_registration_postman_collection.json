@@ -1,0 +1,356 @@
+{
+	"info": {
+		"_postman_id": "login-registration-collection-v1",
+		"name": "Login and Registration API Collection",
+		"description": "Postman collection for user authentication, login, and account creation (customer and rider registration).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000/api",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "email",
+			"value": "test@example.com",
+			"type": "string"
+		},
+		{
+			"key": "password",
+			"value": "testpassword123",
+			"type": "string"
+		},
+		{
+			"key": "customer_name",
+			"value": "John Doe",
+			"type": "string"
+		},
+		{
+			"key": "customer_phone",
+			"value": "+254712345678",
+			"type": "string"
+		},
+		{
+			"key": "customer_address",
+			"value": "123 Main Street, Nairobi, Kenya",
+			"type": "string"
+		},
+		{
+			"key": "rider_license_number",
+			"value": "DRV123456",
+			"type": "string"
+		},
+		{
+			"key": "rider_vehicle_type",
+			"value": "motorcycle",
+			"type": "string"
+		},
+		{
+			"key": "rider_vehicle_plate",
+			"value": "KCA123X",
+			"type": "string"
+		},
+		{
+			"key": "rider_identity_type",
+			"value": "national_id",
+			"type": "string"
+		},
+		{
+			"key": "rider_identity_number",
+			"value": "12345678",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login - Obtain JWT Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('access_token', response.access);",
+									"    pm.collectionVariables.set('refresh_token', response.refresh);",
+									"    console.log('Login successful - Tokens set');",
+									"    console.log('Access Token:', response.access);",
+									"} else {",
+									"    console.log('Login failed with status:', pm.response.code);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/token/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"token/"
+							]
+						},
+						"description": "Authenticate user and obtain JWT access and refresh tokens"
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('access_token', response.access);",
+									"    console.log('Access token refreshed successfully');",
+									"} else {",
+									"    console.log('Token refresh failed');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/token/refresh/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"token/refresh/"
+							]
+						},
+						"description": "Refresh the JWT access token using refresh token"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints for user login and token management"
+		},
+		{
+			"name": "Account Registration",
+			"item": [
+				{
+					"name": "Register Customer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    console.log('Customer registration successful');",
+									"    console.log('Customer ID:', response.id);",
+									"} else {",
+									"    console.log('Customer registration failed');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"email\": \"{{email}}\",\n  \"phone\": \"{{customer_phone}}\",\n  \"address\": \"{{customer_address}}\",\n  \"user_type\": \"customer\",\n  \"password\": \"{{password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/register/customer/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"register/customer/"
+							]
+						},
+						"description": "Register a new customer account"
+					},
+					"response": []
+				},
+				{
+					"name": "Register Rider",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    console.log('Rider registration successful');",
+									"    console.log('Rider ID:', response.id);",
+									"} else {",
+									"    console.log('Rider registration failed');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"{{customer_name}}\",\n  \"email\": \"{{email}}\",\n  \"phone\": \"{{customer_phone}}\",\n  \"address\": \"{{customer_address}}\",\n  \"license_number\": \"{{rider_license_number}}\",\n  \"vehicle_type\": \"{{rider_vehicle_type}}\",\n  \"vehicle_plate\": \"{{rider_vehicle_plate}}\",\n  \"identity_type\": \"{{rider_identity_type}}\",\n  \"identity_number\": \"{{rider_identity_number}}\",\n  \"password\": \"{{password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/register/rider/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"register/rider/"
+							]
+						},
+						"description": "Register a new rider account (requires admin approval)"
+					},
+					"response": []
+				},
+				{
+					"name": "Unified Registration",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    console.log('Unified registration successful');",
+									"    console.log('User ID:', response.id);",
+									"} else {",
+									"    console.log('Unified registration failed');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"email\": \"{{email}}\",\n  \"phone\": \"{{customer_phone}}\",\n  \"address\": \"{{customer_address}}\",\n  \"user_type\": \"customer\",\n  \"password\": \"{{password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/register/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"register/"
+							]
+						},
+						"description": "Unified registration endpoint for both customers and riders"
+					},
+					"response": []
+				}
+			],
+			"description": "Account registration endpoints for customers and riders"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Set default variables if not already set",
+					"if (!pm.collectionVariables.get('base_url')) {",
+					"    pm.collectionVariables.set('base_url', 'http://localhost:8000/api');",
+					"}",
+					"",
+					"// Log request details",
+					"console.log('Sending request to:', pm.request.url.toString());"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Log response for debugging",
+					"console.log('Response status:', pm.response.code);",
+					"",
+					"// Set common response handlers",
+					"if (pm.response.code === 401) {",
+					"    console.log('Authentication required - please login first');",
+					"} else if (pm.response.code >= 400) {",
+					"    console.log('Request failed with status:', pm.response.code);",
+					"    console.log('Response:', pm.response.text());",
+					"}"
+				]
+			}
+		}
+	]
+}

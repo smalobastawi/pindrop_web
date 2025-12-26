@@ -1,4 +1,3 @@
-<!-- frontend/src/views/CustomerLogin.vue -->
 <template>
   <div>
     <!-- Common Header -->
@@ -9,14 +8,14 @@
         <div class="col-md-6">
           <div class="card">
             <div class="card-header">
-              <h3 class="text-center">Customer Login</h3>
+              <h3 class="text-center">Rider Login</h3>
             </div>
           <div class="card-body">
-            <form @submit.prevent="handleLogin">
+            <form @submit.prevent="login">
               <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
                 <input
-                  v-model="form.username"
+                  v-model="credentials.username"
                   type="text"
                   class="form-control"
                   id="username"
@@ -26,7 +25,7 @@
               <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
                 <input
-                  v-model="form.password"
+                  v-model="credentials.password"
                   type="password"
                   class="form-control"
                   id="password"
@@ -35,7 +34,7 @@
               </div>
               <div class="mb-3 form-check">
                 <input
-                  v-model="form.remember"
+                  v-model="credentials.remember"
                   type="checkbox"
                   class="form-check-input"
                   id="remember"
@@ -49,21 +48,17 @@
                 Login
               </button>
             </form>
-            <div class="mt-3 text-center">
-              <p>Or</p>
-              <GoogleSignInButton @success="handleGoogleLogin" @error="handleGoogleError" />
-            </div>
             <div v-if="error" class="alert alert-danger mt-3">
               {{ error }}
             </div>
             <div class="mt-3 text-center">
-              <router-link to="/customer-portal/register" class="text-decoration-none">
-                Don't have an account? Register as Customer
+              <router-link to="/rider-register" class="text-decoration-none">
+                Don't have an account? Register as Rider
               </router-link>
             </div>
             <div class="mt-2 text-center">
-              <router-link to="/rider-login" class="text-decoration-none">
-                Rider Login
+              <router-link to="/customer-login" class="text-decoration-none">
+                Customer Login
               </router-link>
             </div>
           </div>
@@ -78,84 +73,47 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
-import { toast } from 'vue3-toastify'
-import { GoogleSignInButton } from 'vue3-google-signin'
+import { useAuthStore } from '@/stores/auth'
 import CommonHeader from '@/components/layout/CommonHeader.vue'
 import CommonFooter from '@/components/layout/CommonFooter.vue'
 
 const router = useRouter()
-const loading = ref(false)
-const error = ref('')
+const authStore = useAuthStore()
 
-const form = reactive({
+const credentials = ref({
   username: '',
   password: '',
   remember: false
 })
 
-const handleLogin = async () => {
-  error.value = ''
-  loading.value = true
-  
+const loading = ref(false)
+const error = ref('')
+
+const login = async () => {
   try {
-    const response = await axios.post('/api/token/', {
-      username: form.username,
-      password: form.password
+    loading.value = true
+    error.value = ''
+
+    // Call the rider login API
+    const response = await authStore.login({
+      username: credentials.value.username,
+      password: credentials.value.password
     })
     
-    const { access, refresh } = response.data
-    
-    // Store tokens
-    localStorage.setItem('access_token', access)
-    localStorage.setItem('refresh_token', refresh)
-    
-    toast.success('Login successful!')
-    
-    // Redirect to customer portal
-    router.push('/customer-portal')
-    
+    if (response.success) {
+      // Redirect to rider dashboard or deliveries page
+      router.push('/deliveries')
+    } else {
+      error.value = response.error || 'Invalid username or password'
+    }
   } catch (err) {
-    error.value = err.response?.data?.detail || 'Login failed. Please check your credentials.'
-    toast.error(error.value)
+    error.value = 'Login failed. Please try again.'
+    console.error('Login error:', err)
   } finally {
     loading.value = false
   }
-}
-
-const handleGoogleLogin = async (response) => {
-  error.value = ''
-  loading.value = true
-
-  try {
-    const res = await axios.post('/api/google-login/', {
-      credential: response.credential
-    })
-
-    const { access, refresh } = res.data
-
-    // Store tokens
-    localStorage.setItem('access_token', access)
-    localStorage.setItem('refresh_token', refresh)
-
-    toast.success('Login successful!')
-
-    // Redirect to customer portal
-    router.push('/customer-portal')
-
-  } catch (err) {
-    error.value = err.response?.data?.detail || 'Google login failed.'
-    toast.error(error.value)
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleGoogleError = (error) => {
-  console.error('Google login error:', error)
-  toast.error('Google login failed.')
 }
 </script>
 
@@ -169,17 +127,17 @@ const handleGoogleError = (error) => {
 }
 
 .card-header {
-  background-color: #007bff;
+  background-color: #28a745;
   color: white;
 }
 
 .btn-primary {
-  background-color: #007bff;
-  border-color: #007bff;
+  background-color: #28a745;
+  border-color: #28a745;
 }
 
 .btn-primary:hover {
-  background-color: #0056b3;
-  border-color: #004085;
+  background-color: #218838;
+  border-color: #1e7e34;
 }
 </style>

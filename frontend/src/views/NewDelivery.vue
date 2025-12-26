@@ -79,13 +79,23 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Pickup Address</label>
-              <textarea v-model="form.delivery.pickup_address" class="form-control" rows="2" required></textarea>
+              <AddressSelector
+                v-model="form.delivery.pickup_address"
+                label="Pickup Address"
+                placeholder="Search for pickup location..."
+                address-placeholder="Enter or select pickup address"
+                required
+              />
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Delivery Address</label>
-              <textarea v-model="form.delivery.delivery_address" class="form-control" rows="2" required></textarea>
+              <AddressSelector
+                v-model="form.delivery.delivery_address"
+                label="Delivery Address"
+                placeholder="Search for delivery location..."
+                address-placeholder="Enter or select delivery address"
+                required
+              />
             </div>
 
             <div class="row mb-3">
@@ -157,6 +167,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import AddressSelector from '@/components/AddressSelector.vue'
 
 const router = useRouter()
 

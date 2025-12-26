@@ -283,7 +283,7 @@ export default {
           is_active: statusFilter.value
         }
         
-        const response = await axios.get('/admin-api/users/', { params })
+        const response = await axios.get('/admin-api/api/users/', { params })
         users.value = response.data.results || response.data
         totalUsers.value = response.data.count || response.data.length
         
@@ -345,9 +345,9 @@ export default {
     const saveUser = async (userData) => {
       try {
         if (editingUser.value) {
-          await axios.put(`/admin-api/users/${editingUser.value.id}/`, userData)
+          await axios.put(`/admin-api/api/users/${editingUser.value.id}/`, userData)
         } else {
-          await axios.post('/admin-api/users/', userData)
+          await axios.post('/admin-api/api/users/', userData)
         }
         
         closeUserModal()
@@ -360,7 +360,7 @@ export default {
     
     const toggleUserStatus = async (user) => {
       try {
-        await axios.post(`/admin-api/users/${user.id}/toggle_status/`)
+        await axios.post(`/admin-api/api/users/${user.id}/toggle_status/`)
         fetchUsers()
       } catch (error) {
         console.error('Failed to toggle user status:', error)
@@ -374,7 +374,7 @@ export default {
       }
       
       try {
-        await axios.post(`/admin-api/users/${user.id}/reset_password/`)
+        await axios.post(`/admin-api/api/users/${user.id}/reset_password/`)
         alert('Password reset successfully. A temporary password has been sent to the user.')
       } catch (error) {
         console.error('Failed to reset password:', error)
@@ -393,7 +393,7 @@ export default {
       }
       
       try {
-        await axios.delete(`/admin-api/users/${user.id}/`)
+        await axios.delete(`/admin-api/api/users/${user.id}/`)
         fetchUsers()
       } catch (error) {
         console.error('Failed to delete user:', error)

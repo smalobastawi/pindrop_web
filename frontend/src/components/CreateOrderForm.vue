@@ -79,25 +79,44 @@
     <div class="mb-4">
       <h6 class="border-bottom pb-2 mb-3">Delivery Information</h6>
       <div class="mb-3">
-        <label for="pickup_address" class="form-label">Pickup Address *</label>
-        <textarea
-          class="form-control"
-          id="pickup_address"
-          rows="2"
+        <AddressSelector
           v-model="form.delivery.pickup_address"
-          required
-        ></textarea>
+          label="Pickup Address *"
+          placeholder="Search for pickup location..."
+          address-placeholder="Selected pickup address will appear here..."
+        />
       </div>
       
       <div class="mb-3">
-        <label for="delivery_address" class="form-label">Delivery Address *</label>
-        <textarea
-          class="form-control"
-          id="delivery_address"
-          rows="2"
+        <AddressSelector
           v-model="form.delivery.delivery_address"
-          required
-        ></textarea>
+          label="Delivery Address *"
+          placeholder="Search for delivery location..."
+          address-placeholder="Selected delivery address will appear here..."
+        />
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="recipient_name" class="form-label">Recipient Name *</label>
+          <input
+            type="text"
+            class="form-control"
+            id="recipient_name"
+            v-model="form.delivery.recipient_name"
+            required
+          />
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="recipient_phone" class="form-label">Recipient Phone *</label>
+          <input
+            type="tel"
+            class="form-control"
+            id="recipient_phone"
+            v-model="form.delivery.recipient_phone"
+            required
+          />
+        </div>
       </div>
       
       <div class="row">
@@ -188,6 +207,7 @@
 import { ref, reactive, watch, computed } from 'vue'
 import { customerAPI } from '@/api/customers'
 import { toast } from 'vue3-toastify'
+import AddressSelector from '@/components/AddressSelector.vue'
 
 const emit = defineEmits(['order-created', 'cancel'])
 const loading = ref(false)
@@ -205,6 +225,8 @@ const form = reactive({
   delivery: {
     pickup_address: '',
     delivery_address: '',
+    recipient_name: '',
+    recipient_phone: '',
     estimated_pickup: '',
     estimated_delivery: '',
     priority: '1'
@@ -256,8 +278,6 @@ const handleSubmit = async () => {
       },
       delivery: {
         ...form.delivery,
-        estimated_pickup: new Date(form.delivery.estimated_pickup).toISOString(),
-        estimated_delivery: new Date(form.delivery.estimated_delivery).toISOString(),
         priority: parseInt(form.delivery.priority)
       },
       payment: {

@@ -1,7 +1,8 @@
 <template>
   <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
     <div class="position-sticky pt-3">
-      <ul class="nav flex-column">
+      <!-- Admin/Rider Links -->
+      <ul v-if="!isCustomerRoute" class="nav flex-column">
         <li class="nav-item">
           <router-link to="/dashboard" class="nav-link" active-class="active">
             📊 Dashboard
@@ -34,26 +35,6 @@
         </li>
       </ul>
 
-      <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-        <span>Customer Portal</span>
-      </h6>
-      <ul class="nav flex-column mb-2">
-        <li class="nav-item">
-          <router-link to="/customer-portal" class="nav-link" active-class="active">
-            🏠 Customer Portal
-          </router-link>
-        </li>
-        <li class="nav-item">
-          <router-link to="/customer-login" class="nav-link" active-class="active">
-            🔑 Customer Login
-          </router-link>
-        </li>
-        <li class="nav-item">
-          <router-link to="/customer-register" class="nav-link" active-class="active">
-            👤 Customer Register
-          </router-link>
-        </li>
-      </ul>
     </div>
   </nav>
 </template>

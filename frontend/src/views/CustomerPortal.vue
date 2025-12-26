@@ -1,21 +1,57 @@
 <!-- frontend/src/views/CustomerPortal.vue -->
 <template>
   <div class="customer-portal">
-    <div class="container-fluid">
-      <!-- Header -->
-      <div class="row mb-4">
-        <div class="col-12">
-          <div class="d-flex justify-content-between align-items-center">
-            <h2>Customer Portal</h2>
-            <div>
-              <span class="me-3">Welcome, {{ customerData?.name || 'Customer' }}</span>
-              <button @click="handleLogout" class="btn btn-outline-danger btn-sm">
-                Logout
-              </button>
+    <div class="row">
+      <!-- Sidebar -->
+      <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+        <div class="position-sticky pt-3">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a href="#" @click="handleNewOrder" class="nav-link active">
+                ➕ New Order
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#" @click="handleTrackOrder" class="nav-link">
+                🔍 Track Order
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#" @click="handlePayments" class="nav-link">
+                💳 Payments
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#" @click="handleSupportTickets" class="nav-link">
+                🎫 Support Tickets
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#" @click="handleTermsOfService" class="nav-link">
+                📄 Terms of Service
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <div class="container-fluid">
+          <!-- Header -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <div class="d-flex justify-content-between align-items-center">
+                <h2>Customer Portal</h2>
+                <div>
+                  <span class="me-3">Welcome, {{ customerData?.name || 'Customer' }}</span>
+                  <button @click="handleLogout" class="btn btn-outline-danger btn-sm">
+                    Logout
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
       <!-- Statistics Cards -->
       <div class="row mb-4" v-if="portalData">
@@ -133,9 +169,11 @@
           </div>
         </div>
       </div>
-    </div>
+      </div> <!-- close container-fluid -->
+    </main>
+  </div> <!-- close row -->
 
-    <!-- Create Order Modal -->
+  <!-- Create Order Modal -->
     <div class="modal fade" :class="{ show: showCreateOrder }" style="display: block;" v-if="showCreateOrder">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -204,7 +242,7 @@ const handleLogout = () => {
   localStorage.removeItem('access_token')
   localStorage.removeItem('refresh_token')
   toast.success('Logged out successfully')
-  router.push('/customer-login')
+  router.push('/customer-portal/login')
 }
 
 const handleOrderCreated = () => {
@@ -215,6 +253,26 @@ const handleOrderCreated = () => {
 
 const trackOrder = (trackingNumber) => {
   showTrackingModal.value = true
+}
+
+const handleNewOrder = () => {
+  showCreateOrder.value = true
+}
+
+const handleTrackOrder = () => {
+  showTrackingModal.value = true
+}
+
+const handlePayments = () => {
+  toast.info('Payments feature coming soon!')
+}
+
+const handleSupportTickets = () => {
+  toast.info('Support tickets feature coming soon!')
+}
+
+const handleTermsOfService = () => {
+  toast.info('Terms of service will be displayed here!')
 }
 
 const getStatusColor = (status) => {
@@ -252,6 +310,32 @@ onMounted(() => {
 <style scoped>
 .customer-portal {
   padding: 20px;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  padding: 48px 0 0;
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+}
+
+.sidebar .nav-link {
+  font-weight: 500;
+  color: #333;
+  padding: 0.5rem 1rem;
+}
+
+.sidebar .nav-link:hover {
+  color: #007bff;
+}
+
+.sidebar .nav-link.active {
+  color: #007bff;
+  background-color: rgba(0, 123, 255, 0.1);
+  border-right: 3px solid #007bff;
 }
 
 .card {

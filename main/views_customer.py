@@ -7,38 +7,65 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 import json
 import uuid
-from delivery.models import Customer, Package, Delivery, Payment
+from delivery.models import UserProfile, Package, Delivery, Payment
+from core.logging_utils import log_api_error, log_app_error, log_db_error
 
 def customer_register(request):
     """Customer registration page"""
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            name = data.get('name')
+            first_name = data.get('first_name')
+            last_name = data.get('last_name')
             email = data.get('email')
             phone = data.get('phone')
             address = data.get('address')
             password = data.get('password')
+            user_type = data.get('user_type', 'customer')
             
-            # Check if customer exists
-            if Customer.objects.filter(email=email).exists():
-                return JsonResponse({'error': 'Customer with this email already exists'}, status=400)
+            # Check if user exists
+            if UserProfile.objects.filter(user__email=email).exists():
+                log_app_error('User with this email already exists')
+                return JsonResponse({'error': 'User with this email already exists'}, status=400)
             
             # Create user account
             username = email.split('@')[0] + str(uuid.uuid4())[:8]
             user = User.objects.create_user(username=username, email=email, password=password)
             
-            # Create customer profile
-            customer = Customer.objects.create(
-                name=name,
-                email=email,
-                phone=phone,
-                address=address
-            )
-            
-            return JsonResponse({'message': 'Customer registered successfully'})
+            # Create user profile based on user type
+            if user_type == 'rider':
+                user_profile = UserProfile.objects.create(
+                    user=user,
+                    user_type=user_type,
+                    phone=phone,
+                    address=address,
+                    license_number=data.get('license_number'),
+                    license_expiry=data.get('license_expiry'),
+                    vehicle_type=data.get('vehicle_type'),
+                    vehicle_plate=data.get('vehicle_plate'),
+                    vehicle_model=data.get('vehicle_model'),
+                    vehicle_color=data.get('vehicle_color'),
+                    vehicle_year=data.get('vehicle_year'),
+                    identity_type=data.get('identity_type'),
+                    identity_number=data.get('identity_number'),
+                    status='pending_approval'
+                )
+                log_app_error(f'Rider registration successful for {email}')
+                return JsonResponse({'message': 'Rider registration successful. Waiting for approval.'})
+            else:
+                user_profile = UserProfile.objects.create(
+                    user=user,
+                    user_type=user_type,
+                    phone=phone,
+                    address=address,
+                    preferred_language=data.get('preferred_language', 'en'),
+                    push_enabled=data.get('push_enabled', True)
+                )
+                log_app_error(f'Customer registration successful for {email}')
+                return JsonResponse({'message': 'Customer registered successfully'})
             
         except Exception as e:
+            log_app_error(f'Error during user registration: {str(e)}')
             return JsonResponse({'error': str(e)}, status=400)
     
     return render(request, 'main/customer_register.html')
@@ -59,11 +86,14 @@ def customer_login(request):
                     request.session['customer_email'] = email
                     return JsonResponse({'message': 'Login successful'})
                 else:
+                    log_app_error('Invalid credentials during login')
                     return JsonResponse({'error': 'Invalid credentials'}, status=400)
             except User.DoesNotExist:
+                log_app_error('User not found during login')
                 return JsonResponse({'error': 'User not found'}, status=400)
                 
         except Exception as e:
+            log_app_error(f'Error during login: {str(e)}')
             return JsonResponse({'error': str(e)}, status=400)
     
     return render(request, 'main/customer_login.html')
@@ -75,13 +105,13 @@ def customer_portal(request):
     
     email = request.session['customer_email']
     try:
-        customer = Customer.objects.get(email=email)
+        user_profile = UserProfile.objects.get(user__email=email)
         orders = Delivery.objects.filter(
-            customer=customer
+            created_by=user_profile.user
         ).order_by('-created_at')
         
         context = {
-            'customer': customer,
+            'customer': user_profile,
             'orders': orders,
             'stats': {
                 'total_orders': orders.count(),
@@ -90,7 +120,8 @@ def customer_portal(request):
             }
         }
         return render(request, 'main/customer_portal.html', context)
-    except Customer.DoesNotExist:
+    except UserProfile.DoesNotExist:
+        log_app_error('User profile not found during portal access')
         return redirect('customer_login')
 
 @csrf_exempt
@@ -103,7 +134,7 @@ def create_order(request):
         try:
             data = json.loads(request.body)
             email = request.session['customer_email']
-            customer = Customer.objects.get(email=email)
+            user_profile = UserProfile.objects.get(user__email=email)
             
             # Create package
             package = Package.objects.create(
@@ -121,8 +152,6 @@ def create_order(request):
             # Create delivery
             delivery = Delivery.objects.create(
                 tracking_number=f"PKG{uuid.uuid4().hex[:12].upper()}",
-                customer=customer,
-                sender=customer,
                 package=package,
                 pickup_address=data['delivery']['pickup_address'],
                 delivery_address=data['delivery']['delivery_address'],
@@ -130,7 +159,7 @@ def create_order(request):
                 estimated_delivery=data['delivery']['estimated_delivery'],
                 priority=data['delivery'].get('priority', 1),
                 delivery_fee=delivery_fee,
-                created_by=customer.user if hasattr(customer, 'user') else None
+                created_by=user_profile.user
             )
             
             # Create payment
@@ -147,6 +176,7 @@ def create_order(request):
             })
             
         except Exception as e:
+            log_app_error(f'Error during order creation: {str(e)}')
             return JsonResponse({'error': str(e)}, status=400)
     
     return JsonResponse({'error': 'Invalid request'}, status=400)
@@ -189,8 +219,10 @@ def track_order(request):
             return JsonResponse(order_data)
             
         except Delivery.DoesNotExist:
+            log_app_error('Delivery not found during tracking')
             return JsonResponse({'error': 'Delivery not found'}, status=404)
-    
+        
+    log_app_error('Invalid request during order tracking')
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 def customer_logout(request):

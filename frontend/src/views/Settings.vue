@@ -272,6 +272,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import axios from 'axios'
 
 const settings = ref({
   general: {
@@ -306,24 +307,179 @@ const settings = ref({
   }
 })
 
-const saveGeneralSettings = () => {
-  console.log('Saving general settings:', settings.value.general)
-  alert('General settings saved successfully!')
+const loading = ref(false)
+const saving = ref(false)
+
+const loadSettings = async () => {
+  loading.value = true
+  try {
+    const response = await axios.get('/admin-api/api/settings/')
+    const settingsData = response.data.results || response.data
+
+    // Update form with loaded settings
+    if (settingsData.length > 0) {
+      settingsData.forEach(setting => {
+        const value = setting.typed_value !== undefined ? setting.typed_value : setting.value
+        switch(setting.key) {
+          case 'company_name':
+            settings.value.general.company_name = value
+            break
+          case 'support_email':
+            settings.value.general.support_email = value
+            break
+          case 'company_address':
+            settings.value.general.company_address = value
+            break
+          case 'phone':
+            settings.value.general.phone = value
+            break
+          case 'business_hours':
+            settings.value.general.business_hours = value
+            break
+          case 'base_delivery_fee':
+            settings.value.delivery.base_fee = parseFloat(value)
+            break
+          case 'fee_per_kg':
+            settings.value.delivery.fee_per_kg = parseFloat(value)
+            break
+          case 'express_multiplier':
+            settings.value.delivery.express_multiplier = parseFloat(value)
+            break
+          case 'urgent_multiplier':
+            settings.value.delivery.urgent_multiplier = parseFloat(value)
+            break
+          case 'max_weight':
+            settings.value.delivery.max_weight = parseInt(value)
+            break
+          case 'max_distance':
+            settings.value.delivery.max_distance = parseInt(value)
+            break
+          case 'email_new_order':
+            settings.value.notifications.email_new_order = value === 'true' || value === true
+            break
+          case 'email_status_update':
+            settings.value.notifications.email_status_update = value === 'true' || value === true
+            break
+          case 'email_payment':
+            settings.value.notifications.email_payment = value === 'true' || value === true
+            break
+          case 'sms_new_order':
+            settings.value.notifications.sms_new_order = value === 'true' || value === true
+            break
+          case 'sms_delivery':
+            settings.value.notifications.sms_delivery = value === 'true' || value === true
+            break
+          case 'accept_cash':
+            settings.value.payment.accept_cash = value === 'true' || value === true
+            break
+          case 'accept_card':
+            settings.value.payment.accept_card = value === 'true' || value === true
+            break
+          case 'accept_mobile':
+            settings.value.payment.accept_mobile = value === 'true' || value === true
+            break
+          case 'accept_bank':
+            settings.value.payment.accept_bank = value === 'true' || value === true
+            break
+          case 'currency':
+            settings.value.payment.currency = value
+            break
+          case 'tax_rate':
+            settings.value.payment.tax_rate = parseFloat(value)
+            break
+        }
+      })
+    }
+  } catch (error) {
+    console.error('Failed to load settings:', error)
+  } finally {
+    loading.value = false
+  }
 }
 
-const saveDeliverySettings = () => {
-  console.log('Saving delivery settings:', settings.value.delivery)
-  alert('Delivery settings saved successfully!')
+const saveSettings = async (settingsToSave) => {
+  saving.value = true
+  try {
+    for (const setting of settingsToSave) {
+      await axios.post('/admin-api/api/settings/upsert/', setting)
+    }
+    return true
+  } catch (error) {
+    console.error('Failed to save settings:', error)
+    return false
+  } finally {
+    saving.value = false
+  }
 }
 
-const saveNotificationSettings = () => {
-  console.log('Saving notification settings:', settings.value.notifications)
-  alert('Notification settings saved successfully!')
+const saveGeneralSettings = async () => {
+  const settingsToSave = [
+    { key: 'company_name', value: settings.value.general.company_name, setting_type: 'string', category: 'general' },
+    { key: 'support_email', value: settings.value.general.support_email, setting_type: 'string', category: 'general' },
+    { key: 'company_address', value: settings.value.general.company_address, setting_type: 'string', category: 'general' },
+    { key: 'phone', value: settings.value.general.phone, setting_type: 'string', category: 'general' },
+    { key: 'business_hours', value: settings.value.general.business_hours, setting_type: 'string', category: 'general' }
+  ]
+
+  const success = await saveSettings(settingsToSave)
+  if (success) {
+    alert('General settings saved successfully!')
+  } else {
+    alert('Failed to save general settings. Please try again.')
+  }
 }
 
-const savePaymentSettings = () => {
-  console.log('Saving payment settings:', settings.value.payment)
-  alert('Payment settings saved successfully!')
+const saveDeliverySettings = async () => {
+  const settingsToSave = [
+    { key: 'base_delivery_fee', value: settings.value.delivery.base_fee.toString(), setting_type: 'float', category: 'delivery' },
+    { key: 'fee_per_kg', value: settings.value.delivery.fee_per_kg.toString(), setting_type: 'float', category: 'delivery' },
+    { key: 'express_multiplier', value: settings.value.delivery.express_multiplier.toString(), setting_type: 'float', category: 'delivery' },
+    { key: 'urgent_multiplier', value: settings.value.delivery.urgent_multiplier.toString(), setting_type: 'float', category: 'delivery' },
+    { key: 'max_weight', value: settings.value.delivery.max_weight.toString(), setting_type: 'integer', category: 'delivery' },
+    { key: 'max_distance', value: settings.value.delivery.max_distance.toString(), setting_type: 'integer', category: 'delivery' }
+  ]
+
+  const success = await saveSettings(settingsToSave)
+  if (success) {
+    alert('Delivery settings saved successfully!')
+  } else {
+    alert('Failed to save delivery settings. Please try again.')
+  }
+}
+
+const saveNotificationSettings = async () => {
+  const settingsToSave = [
+    { key: 'email_new_order', value: settings.value.notifications.email_new_order.toString(), setting_type: 'boolean', category: 'notifications' },
+    { key: 'email_status_update', value: settings.value.notifications.email_status_update.toString(), setting_type: 'boolean', category: 'notifications' },
+    { key: 'email_payment', value: settings.value.notifications.email_payment.toString(), setting_type: 'boolean', category: 'notifications' },
+    { key: 'sms_new_order', value: settings.value.notifications.sms_new_order.toString(), setting_type: 'boolean', category: 'notifications' },
+    { key: 'sms_delivery', value: settings.value.notifications.sms_delivery.toString(), setting_type: 'boolean', category: 'notifications' }
+  ]
+
+  const success = await saveSettings(settingsToSave)
+  if (success) {
+    alert('Notification settings saved successfully!')
+  } else {
+    alert('Failed to save notification settings. Please try again.')
+  }
+}
+
+const savePaymentSettings = async () => {
+  const settingsToSave = [
+    { key: 'accept_cash', value: settings.value.payment.accept_cash.toString(), setting_type: 'boolean', category: 'payment' },
+    { key: 'accept_card', value: settings.value.payment.accept_card.toString(), setting_type: 'boolean', category: 'payment' },
+    { key: 'accept_mobile', value: settings.value.payment.accept_mobile.toString(), setting_type: 'boolean', category: 'payment' },
+    { key: 'accept_bank', value: settings.value.payment.accept_bank.toString(), setting_type: 'boolean', category: 'payment' },
+    { key: 'currency', value: settings.value.payment.currency, setting_type: 'string', category: 'payment' },
+    { key: 'tax_rate', value: settings.value.payment.tax_rate.toString(), setting_type: 'float', category: 'payment' }
+  ]
+
+  const success = await saveSettings(settingsToSave)
+  if (success) {
+    alert('Payment settings saved successfully!')
+  } else {
+    alert('Failed to save payment settings. Please try again.')
+  }
 }
 
 const backupDatabase = () => {
@@ -345,8 +501,7 @@ const regenerateApiKeys = () => {
 }
 
 onMounted(() => {
-  console.log('Loading settings...')
-  // In a real app, you would fetch settings from API
+  loadSettings()
 })
 </script>
 

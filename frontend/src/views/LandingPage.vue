@@ -1,44 +1,7 @@
 <template>
   <div class="landing-page">
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
-      <div class="container">
-        <router-link class="navbar-brand fw-bold text-primary" to="/">
-          <i class="fas fa-shipping-fast me-2"></i>RiderApp
-        </router-link>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="#features">Features</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#how-it-works">How It Works</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#customers">Customers</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#riders">Riders</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#pricing">Pricing</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#contact">Contact</a>
-            </li>
-            <li class="nav-item ms-2">
-              <router-link to="/customer-login" class="btn btn-outline-primary">Customer Login</router-link>
-            </li>
-            <li class="nav-item ms-2">
-              <router-link to="/rider-login" class="btn btn-primary">Rider Login</router-link>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
+    <!-- Common Header -->
+    <CommonHeader />
 
     <!-- Compact Slider Section -->
     <section class="slider-section">
@@ -386,64 +349,15 @@
       </div>
     </section>
 
-    <!-- Footer -->
-    <footer id="contact" class="bg-dark text-white py-5">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-4 mb-4">
-            <h5 class="fw-bold mb-3">
-              <i class="fas fa-shipping-fast me-2"></i>RiderApp
-            </h5>
-            <p class="text-muted">Powerful delivery management system for modern businesses. Streamline your operations with our comprehensive platform.</p>
-            <div class="d-flex gap-3 mt-4">
-              <a href="#" class="text-white"><i class="fab fa-facebook fa-lg"></i></a>
-              <a href="#" class="text-white"><i class="fab fa-twitter fa-lg"></i></a>
-              <a href="#" class="text-white"><i class="fab fa-linkedin fa-lg"></i></a>
-              <a href="#" class="text-white"><i class="fab fa-instagram fa-lg"></i></a>
-            </div>
-          </div>
-          <div class="col-lg-2 col-md-4 mb-4">
-            <h6 class="fw-bold mb-3">Product</h6>
-            <ul class="list-unstyled">
-              <li class="mb-2"><a href="#features" class="text-muted text-decoration-none">Features</a></li>
-              <li class="mb-2"><a href="#pricing" class="text-muted text-decoration-none">Pricing</a></li>
-              <li class="mb-2"><a href="#how-it-works" class="text-muted text-decoration-none">How It Works</a></li>
-              <li class="mb-2"><a href="#" class="text-muted text-decoration-none">API Docs</a></li>
-            </ul>
-          </div>
-          <div class="col-lg-2 col-md-4 mb-4">
-            <h6 class="fw-bold mb-3">Company</h6>
-            <ul class="list-unstyled">
-              <li class="mb-2"><a href="#" class="text-muted text-decoration-none">About Us</a></li>
-              <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Careers</a></li>
-              <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Blog</a></li>
-              <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Press</a></li>
-            </ul>
-          </div>
-          <div class="col-lg-4 mb-4">
-            <h6 class="fw-bold mb-3">Contact Us</h6>
-            <p class="text-muted mb-2"><i class="fas fa-envelope me-2"></i> support@riderapp.com</p>
-            <p class="text-muted mb-2"><i class="fas fa-phone me-2"></i> +1 (555) 123-4567</p>
-            <p class="text-muted"><i class="fas fa-map-marker-alt me-2"></i> 123 Delivery St, San Francisco, CA</p>
-          </div>
-        </div>
-        <hr class="bg-secondary">
-        <div class="row">
-          <div class="col-md-6">
-            <p class="text-muted mb-0">&copy; 2024 RiderApp. All rights reserved.</p>
-          </div>
-          <div class="col-md-6 text-md-end">
-            <a href="#" class="text-muted text-decoration-none me-3">Privacy Policy</a>
-            <a href="#" class="text-muted text-decoration-none">Terms of Service</a>
-          </div>
-        </div>
-      </div>
-    </footer>
+    <!-- Common Footer -->
+    <CommonFooter />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import CommonHeader from '@/components/layout/CommonHeader.vue'
+import CommonFooter from '@/components/layout/CommonFooter.vue'
 
 // Import local images - fix the paths as needed
 import deliveryDashboardSlider from '@/assets/images/slider1.jpg'

@@ -44,8 +44,8 @@
       <aside class="admin-sidebar" :class="{ 'sidebar-collapsed': sidebarCollapsed }">
         <nav class="sidebar-nav">
           <div class="nav-section">
-            <h3>Main</h3>
-            <ul>
+            <h3 @click="toggleSection('main')">Dashboard <i class="icon-chevron-down" :class="{ 'rotated': !expandedSections.main }"></i></h3>
+            <ul v-show="expandedSections.main">
               <li>
                 <router-link to="/admin" class="nav-link">
                   <i class="icon-dashboard"></i>
@@ -56,8 +56,8 @@
           </div>
 
           <div class="nav-section">
-            <h3>Management</h3>
-            <ul>
+            <h3 @click="toggleSection('management')">Management <i class="icon-chevron-down" :class="{ 'rotated': !expandedSections.management }"></i></h3>
+            <ul v-show="expandedSections.management">
               <li>
                 <router-link to="/admin/customers" class="nav-link">
                   <i class="icon-users"></i>
@@ -86,8 +86,8 @@
           </div>
 
           <div class="nav-section">
-            <h3>Analytics</h3>
-            <ul>
+            <h3 @click="toggleSection('analytics')">Analytics <i class="icon-chevron-down" :class="{ 'rotated': !expandedSections.analytics }"></i></h3>
+            <ul v-show="expandedSections.analytics">
               <li>
                 <router-link to="/admin/reports" class="nav-link">
                   <i class="icon-bar-chart"></i>
@@ -104,8 +104,8 @@
           </div>
 
           <div class="nav-section" v-if="canManageUsers">
-            <h3>Administration</h3>
-            <ul>
+            <h3 @click="toggleSection('administration')">Administration <i class="icon-chevron-down" :class="{ 'rotated': !expandedSections.administration }"></i></h3>
+            <ul v-show="expandedSections.administration">
               <li>
                 <router-link to="/admin/users" class="nav-link">
                   <i class="icon-user-cog"></i>
@@ -128,8 +128,8 @@
           </div>
 
           <div class="nav-section" v-if="canManageSettings">
-            <h3>System</h3>
-            <ul>
+            <h3 @click="toggleSection('system')">System <i class="icon-chevron-down" :class="{ 'rotated': !expandedSections.system }"></i></h3>
+            <ul v-show="expandedSections.system">
               <li>
                 <router-link to="/admin/templates" class="nav-link">
                   <i class="icon-mail"></i>
@@ -215,6 +215,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAdminAuthStore } from '@/stores/adminAuth'
+import axios from 'axios'
 
 export default {
   name: 'AdminLayout',
@@ -231,6 +232,13 @@ export default {
     const unreadNotifications = ref(0)
     const adminProfile = ref({})
     const changingPassword = ref(false)
+    const expandedSections = ref({
+      main: false,
+      management: false,
+      analytics: false,
+      administration: false,
+      system: false
+    })
     
     const passwordForm = ref({
       current_password: '',
@@ -253,6 +261,10 @@ export default {
       localStorage.setItem('admin_sidebar_collapsed', sidebarCollapsed.value)
     }
     
+    const toggleSection = (section) => {
+      expandedSections.value[section] = !expandedSections.value[section]
+    }
+    
     const viewProfile = () => {
       showProfileMenu.value = false
       router.push('/admin/profile')
@@ -261,7 +273,7 @@ export default {
     const logout = async () => {
       try {
         await adminAuthStore.logout()
-        router.push('/admin-login')
+        router.push('/login')
       } catch (error) {
         console.error('Logout error:', error)
       }
@@ -298,7 +310,7 @@ export default {
     const loadNotifications = async () => {
       try {
         // Load notifications from API
-        const response = await adminAuthStore.api.get('/admin-api/dashboard/recent-activities?limit=5')
+        const response = await axios.get('/admin-api/api/dashboard/recent-activities/?limit=5')
         notifications.value = response.data.activities || []
         unreadNotifications.value = notifications.value.length
       } catch (error) {
@@ -308,7 +320,7 @@ export default {
     
     const loadAdminProfile = async () => {
       try {
-        const response = await adminAuthStore.api.get('/admin-api/users/me/')
+        const response = await axios.get('/admin-api/api/users/me/')
         adminProfile.value = response.data
       } catch (error) {
         console.error('Failed to load admin profile:', error)
@@ -338,6 +350,8 @@ export default {
       canManageUsers,
       canManageSettings,
       toggleSidebar,
+      toggleSection,
+      expandedSections,
       viewProfile,
       logout,
       changePassword,
@@ -535,6 +549,18 @@ export default {
   color: #adb5bd;
   padding: 0 1rem;
   margin-bottom: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-section h3 i {
+  transition: transform 0.2s ease;
+}
+
+.rotated {
+  transform: rotate(180deg);
 }
 
 .nav-section ul {
