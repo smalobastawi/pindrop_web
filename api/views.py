@@ -224,6 +224,17 @@ class UnifiedRegistrationView(APIView):
              
         if serializer.is_valid():
             user_profile = serializer.save()
+
+            # Assign role based on user_type
+            try:
+                if user_type == 'rider':
+                    role = Role.objects.get(name='rider')
+                else:
+                    role = Role.objects.get(name='customer')
+                UserRole.objects.create(user=user_profile.user, role=role)
+            except Role.DoesNotExist:
+                pass  # Role not found, continue without assigning
+
             if user_type == 'rider':
                 return Response({
                     'message': 'Rider registered successfully',

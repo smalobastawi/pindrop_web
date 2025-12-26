@@ -15,7 +15,7 @@ def test_customer_registration():
     customer_data = {
         "first_name": "John",
         "last_name": "Doe",
-        "email": "john.doe.test2@example.com",
+        "email": "john.doe.test4@example.com",
         "phone": "+1234567890",
         "address": "123 Test Street, Test City, TC 12345",
         "password": "testpassword123"
@@ -80,24 +80,39 @@ def test_order_creation(access_token):
     response = requests.post(f"{BASE_URL}/customer/portal/", json=order_data, headers=headers)
     
     if response.status_code == 201:
-        print("✅ Order creation successful")
+        print("Order creation successful")
         return response.json()
     else:
-        print(f"❌ Order creation failed: {response.status_code}")
+        print(f"Order creation failed: {response.status_code}")
+        print(f"Response: {response.text}")
+        return None
+
+def test_customer_portal(access_token):
+    """Test customer portal access"""
+    print("Testing customer portal access...")
+
+    headers = {"Authorization": f"Bearer {access_token}"}
+    response = requests.get(f"{BASE_URL}/customer/portal/", headers=headers)
+
+    if response.status_code == 200:
+        print("Customer portal access successful")
+        return response.json()
+    else:
+        print(f"Customer portal access failed: {response.status_code}")
         print(f"Response: {response.text}")
         return None
 
 def test_order_tracking(tracking_number):
     """Test order tracking"""
     print("Testing order tracking...")
-    
+
     response = requests.get(f"{BASE_URL}/customer/track/", params={"tracking_number": tracking_number})
-    
+
     if response.status_code == 200:
-        print("✅ Order tracking successful")
+        print("Order tracking successful")
         return response.json()
     else:
-        print(f"❌ Order tracking failed: {response.status_code}")
+        print(f"Order tracking failed: {response.status_code}")
         print(f"Response: {response.text}")
         return None
 
@@ -114,7 +129,7 @@ def main():
     print()
     
     # Test 2: Customer Login
-    email = "john.doe.test2@example.com"
+    email = "john.doe.test4@example.com"
     password = "testpassword123"
     login_result = test_customer_login(email, password)
     if not login_result:
@@ -123,23 +138,31 @@ def main():
     
     access_token = login_result['access']
     print()
-    
-    # Test 3: Order Creation
+
+    # Test 3: Customer Portal Access
+    portal_result = test_customer_portal(access_token)
+    if not portal_result:
+        print("Stopping tests due to portal access failure")
+        return
+
+    print()
+
+    # Test 4: Order Creation
     order_result = test_order_creation(access_token)
     if not order_result:
         print("Stopping tests due to order creation failure")
         return
-    
+
     tracking_number = order_result['tracking_number']
     print()
-    
-    # Test 4: Order Tracking
+
+    # Test 5: Order Tracking
     tracking_result = test_order_tracking(tracking_number)
     if not tracking_result:
         print("Stopping tests due to tracking failure")
         return
     
-    print("\n🎉 All tests completed successfully!")
+    print("\nAll tests completed successfully!")
     print(f"Created tracking number: {tracking_number}")
 
 if __name__ == "__main__":
