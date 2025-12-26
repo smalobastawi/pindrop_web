@@ -113,12 +113,14 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
 }
 
-# CORS Settings (for Vue.js development)
+# CORS Settings (for Vue.js development and production)
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Vite default port
     "http://127.0.0.1:5173",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
+    "https://riderapp.testrunner.co.ke",  # Production domain
+    "https://www.riderapp.testrunner.co.ke",  # Production www domain
 ]
 
 CORS_ALLOW_CREDENTIALS = True
