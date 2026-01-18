@@ -33,7 +33,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap5',
     'debug_toolbar',
-    
+
     # Local apps
     'main',
     'api',  # We'll create this
@@ -154,3 +154,65 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 INTERNAL_IPS = ['127.0.0.1', 'localhost']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Logging Configuration - Only errors by default
+LOG_LEVEL = os.getenv('LOG_LEVEL', 'ERROR')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {asctime} {message}',
+            'style': '{',
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': LOG_LEVEL,
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'file': {
+            'level': LOG_LEVEL,
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'django_errors.log',
+            'formatter': 'verbose',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console', 'file'],
+        'level': LOG_LEVEL,
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': LOG_LEVEL,
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['console', 'file', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.db.backends': {
+            'handlers': ['console', 'file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+}

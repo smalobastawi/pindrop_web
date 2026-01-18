@@ -1,10 +1,10 @@
 <!-- frontend/src/App.vue -->
 <template>
   <div id="app">
-    <Navbar v-if="isAuthenticated" />
-    <div class="container-fluid" v-if="isAuthenticated">
+    <Navbar v-if="isAuthenticated && !isLandingPage" />
+    <div class="container-fluid" v-if="isAuthenticated && !isLandingPage">
       <div class="row">
-        <Sidebar v-if="isAuthenticated" />
+        <Sidebar v-if="isAuthenticated && !isLandingPage" />
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
           <router-view />
         </main>
@@ -16,12 +16,15 @@
 
 <script setup>
 import { computed } from "vue";
+import { useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import Navbar from "@/components/layout/Navbar.vue";
 import Sidebar from "@/components/layout/Sidebar.vue";
 
+const route = useRoute();
 const authStore = useAuthStore();
 const isAuthenticated = computed(() => authStore.isAuthenticated);
+const isLandingPage = computed(() => route.name === 'Home');
 </script>
 
 <style>

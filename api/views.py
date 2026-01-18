@@ -14,6 +14,7 @@ from delivery.models import UserProfile, Package, Delivery, DeliveryStatusUpdate
 from .serializers import *
 from core.logging_utils import log_api_error, log_app_error, log_db_error
 from core.permissions import HasRolePermission, has_permission
+# from core.mpesa_service import MpesaService
 
 class UserProfileViewSet(viewsets.ModelViewSet):
     """ViewSet for managing user profiles with filtering"""
@@ -71,7 +72,7 @@ class DeliveryViewSet(viewsets.ModelViewSet):
         status_value = request.data.get('status')
         location = request.data.get('location', '')
         notes = request.data.get('notes', '')
-        
+
         if status_value:
             DeliveryStatusUpdate.objects.create(
                 delivery=delivery,
@@ -83,8 +84,156 @@ class DeliveryViewSet(viewsets.ModelViewSet):
             delivery.status = status_value
             delivery.save()
             return Response({'message': 'Status updated successfully'})
-        
+
         return Response({'error': 'Status is required'}, status=400)
+
+    @action(detail=True, methods=['post'])
+    def process_payment(self, request, pk=None):
+        delivery = self.get_object()
+
+        # Get or create payment
+        try:
+            payment = Payment.objects.get(delivery=delivery)
+        except Payment.DoesNotExist:
+            return Response({'error': 'Payment not found for this delivery'}, status=404)
+
+        # Update payment method and phone number
+        payment_method = request.data.get('payment_method')
+        phone_number = request.data.get('phone_number', '')
+
+        if payment_method:
+            payment.payment_method = payment_method
+        if phone_number:
+            payment.phone_number = phone_number
+
+        payment.save()
+
+        # Handle M-Pesa payment
+        if payment.payment_method == 'mpesa' and payment.phone_number:
+            # Import M-Pesa service and initiate STK push
+            try:
+                from core.mpesa_service import MpesaService
+                mpesa_service = MpesaService()
+                
+                # Get callback URL from environment or use default
+                import os
+                callback_url = os.getenv('MPESA_CALLBACK_URL', 'https://yourdomain.com/api/mpesa/callback/')
+                
+                response = mpesa_service.initiate_stk_push(
+                    phone_number=payment.phone_number,
+                    amount=str(int(payment.amount)),
+                    account_reference=delivery.tracking_number,
+                    transaction_desc=f"Payment for delivery {delivery.tracking_number}",
+                    callback_url=callback_url
+                )
+                
+                if response and response.get('ResponseCode') == '0':
+                    payment.transaction_id = response.get('CheckoutRequestID')
+                    payment.payment_gateway = 'mpesa'
+                    payment.status = 'processing'
+                    payment.save()
+                    
+                    return Response({
+                        'message': 'M-PESA payment request sent successfully',
+                        'payment': PaymentSerializer(payment).data,
+                        'checkout_request_id': response.get('CheckoutRequestID')
+                    })
+                else:
+                    log_app_error(f'M-Pesa STK Push failed: {response}')
+                    payment.status = 'failed'
+                    payment.save()
+                    return Response({
+                        'error': 'M-PESA request failed. Please try again.',
+                        'payment': PaymentSerializer(payment).data
+                    }, status=400)
+                    
+            except ImportError:
+                log_app_error('M-Pesa service not available')
+                payment.status = 'processing'
+                payment.save()
+                return Response({
+                    'message': 'Payment processing initiated (M-PESA service pending)',
+                    'payment': PaymentSerializer(payment).data
+                })
+            except Exception as e:
+                log_app_error(f'M-Pesa STK Push error: {str(e)}')
+                payment.status = 'processing'
+                payment.save()
+                return Response({
+                    'message': 'Payment processing initiated',
+                    'payment': PaymentSerializer(payment).data,
+                    'warning': 'M-PESA prompt may be delayed'
+                })
+
+        # For other methods, mark as processing
+        payment.status = 'processing'
+        payment.save()
+
+        return Response({
+            'message': 'Payment updated successfully',
+            'payment': PaymentSerializer(payment).data
+        })
+
+    @action(detail=True, methods=['get'])
+    def payment_status(self, request, pk=None):
+        """Check payment status for a delivery"""
+        delivery = self.get_object()
+        
+        try:
+            payment = Payment.objects.get(delivery=delivery)
+            return Response({
+                'payment': PaymentSerializer(payment).data,
+                'status': payment.status
+            })
+        except Payment.DoesNotExist:
+            return Response({'error': 'Payment not found for this delivery'}, status=404)
+
+    @action(detail=True, methods=['post'])
+    def confirm_payment_by_code(self, request, pk=None):
+        """Confirm payment using M-PESA transaction code"""
+        delivery = self.get_object()
+        transaction_code = request.data.get('transaction_code', '').strip().upper()
+        phone_number = request.data.get('phone_number', '')
+        
+        if not transaction_code:
+            return Response({'error': 'Transaction code is required'}, status=400)
+        
+        try:
+            payment = Payment.objects.get(delivery=delivery)
+        except Payment.DoesNotExist:
+            return Response({'error': 'Payment not found for this delivery'}, status=404)
+        
+        # Validate transaction code format (M-PESA codes are typically 10 alphanumeric)
+        import re
+        if not re.match(r'^[A-Z0-9]{8,12}$', transaction_code):
+            return Response({
+                'success': False,
+                'error': 'Invalid transaction code format'
+            }, status=400)
+        
+        # Check if this transaction code was already used
+        existing_payment = Payment.objects.filter(gateway_reference=transaction_code).exclude(id=payment.id).first()
+        if existing_payment:
+            return Response({
+                'success': False,
+                'error': 'This transaction code has already been used'
+            }, status=400)
+        
+        # Update payment with the transaction code
+        payment.gateway_reference = transaction_code
+        payment.status = 'paid'
+        payment.paid_at = timezone.now()
+        if phone_number:
+            payment.phone_number = phone_number
+        payment.save()
+        
+        log_app_error(f'Payment {payment.id} confirmed manually with code: {transaction_code}')
+        
+        return Response({
+            'success': True,
+            'message': 'Payment confirmed successfully',
+            'payment': PaymentSerializer(payment).data
+        })
 
 class DeliveryStatusUpdateViewSet(viewsets.ModelViewSet):
     queryset = DeliveryStatusUpdate.objects.all()
@@ -373,15 +522,71 @@ class CustomerPortalView(APIView):
                 delivery=delivery,
                 amount=payment_data.get('amount', delivery_fee),
                 payment_method=payment_data.get('payment_method', 'cash'),
+                phone_number=payment_data.get('phone_number', ''),
                 status='pending'
             )
 
-            return Response({
+            # Handle M-Pesa payment
+            checkout_request_id = None
+            mpesa_error = None
+            
+            if payment.payment_method == 'mpesa' and payment.phone_number:
+                log_app_error(f'Initiating M-Pesa STK Push for payment {payment.id}')
+                try:
+                    from core.mpesa_service import MpesaService
+                    import os
+                    
+                    mpesa_service = MpesaService()
+                    callback_url = os.getenv('MPESA_CALLBACK_URL', 'https://yourdomain.com/api/mpesa/callback/')
+                    
+                    response = mpesa_service.initiate_stk_push(
+                        phone_number=payment.phone_number,
+                        amount=str(int(payment.amount)),
+                        account_reference=tracking_number,
+                        transaction_desc=f"Delivery {tracking_number[:10]}",
+                        callback_url=callback_url
+                    )
+                    
+                    log_app_error(f'M-Pesa STK Push response: {response}')
+                    
+                    if response and response.get('ResponseCode') == '0':
+                        payment.transaction_id = response.get('CheckoutRequestID')
+                        payment.payment_gateway = 'mpesa'
+                        payment.status = 'processing'
+                        payment.save()
+                        checkout_request_id = response.get('CheckoutRequestID')
+                        log_app_error(f'M-Pesa STK Push successful - CheckoutRequestID: {checkout_request_id}')
+                    else:
+                        error_msg = response.get('ResponseDescription', 'Unknown error') if response else 'No response'
+                        log_app_error(f'M-Pesa STK Push failed: {error_msg}')
+                        mpesa_error = error_msg
+                        payment.status = 'pending'  # Keep pending so user can retry
+                        payment.save()
+                except ImportError as e:
+                    log_app_error(f'M-Pesa service import error: {str(e)}')
+                    mpesa_error = 'M-Pesa service not available'
+                    payment.status = 'pending'
+                    payment.save()
+                except Exception as e:
+                    log_app_error(f'M-Pesa STK Push exception: {str(e)}')
+                    mpesa_error = str(e)
+                    payment.status = 'pending'  # Keep pending so user can retry
+                    payment.save()
+
+            response_data = {
                 'message': 'Order created successfully',
                 'order': DeliverySerializer(delivery).data,
                 'payment': PaymentSerializer(payment).data,
                 'tracking_number': tracking_number
-            }, status=201)
+            }
+            
+            if checkout_request_id:
+                response_data['checkout_request_id'] = checkout_request_id
+            
+            if mpesa_error:
+                response_data['mpesa_warning'] = mpesa_error
+
+            return Response(response_data, status=201)
 
         except Exception as e:
             log_app_error(f'Error creating order: {str(e)}')
@@ -693,3 +898,55 @@ class GoogleLoginView(APIView):
         except Exception as e:
             log_api_error(f'Google login error: {str(e)}')
             return Response({'error': str(e)}, status=400)
+
+
+class MpesaCallbackView(APIView):
+    """Handle M-Pesa STK Push callback"""
+    permission_classes = [permissions.AllowAny]  # M-Pesa doesn't send auth headers
+
+    def post(self, request):
+        callback_data = request.data
+        log_app_error(f'M-Pesa callback received: {callback_data}')
+
+        try:
+            if 'Body' in callback_data and 'stkCallback' in callback_data['Body']:
+                stk_callback = callback_data['Body']['stkCallback']
+                checkout_request_id = stk_callback.get('CheckoutRequestID')
+                result_code = stk_callback.get('ResultCode')
+
+                if result_code == 0:
+                    # Payment successful
+                    callback_metadata = stk_callback.get('CallbackMetadata', {}).get('Item', [])
+                    mpesa_receipt_number = None
+                    for item in callback_metadata:
+                        if item.get('Name') == 'MpesaReceiptNumber':
+                            mpesa_receipt_number = item.get('Value')
+                            break
+
+                    # Update payment
+                    try:
+                        payment = Payment.objects.get(transaction_id=checkout_request_id)
+                        payment.status = 'paid'
+                        payment.gateway_reference = mpesa_receipt_number
+                        payment.paid_at = timezone.now()
+                        payment.save()
+                        log_app_error(f'Payment {payment.id} marked as paid')
+                    except Payment.DoesNotExist:
+                        log_app_error(f'Payment not found for CheckoutRequestID: {checkout_request_id}')
+                else:
+                    # Payment failed
+                    result_desc = stk_callback.get('ResultDesc', 'Unknown error')
+                    log_app_error(f'M-Pesa payment failed: {result_desc}')
+
+                    try:
+                        payment = Payment.objects.get(transaction_id=checkout_request_id)
+                        payment.status = 'failed'
+                        payment.save()
+                        log_app_error(f'Payment {payment.id} marked as failed')
+                    except Payment.DoesNotExist:
+                        log_app_error(f'Payment not found for CheckoutRequestID: {checkout_request_id}')
+
+            return Response({'message': 'Callback processed successfully'}, status=200)
+        except Exception as e:
+            log_app_error(f'Error processing M-Pesa callback: {str(e)}')
+            return Response({'error': 'Callback processing failed'}, status=400)

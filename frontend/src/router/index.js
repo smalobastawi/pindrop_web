@@ -179,6 +179,12 @@ const router = createRouter({
       meta: { requiresCustomerAuth: true, title: 'Customer Portal' }
     },
     {
+      path: '/customer-portal/payment',
+      name: 'PaymentOptions',
+      component: () => import('@/views/PaymentOptions.vue'),
+      meta: { requiresCustomerAuth: true, title: 'Payment Options' }
+    },
+    {
       path: '/rider-register',
       name: 'RiderRegister',
       component: () => import('@/views/RiderRegister.vue'),

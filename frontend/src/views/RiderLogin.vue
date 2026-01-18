@@ -48,6 +48,10 @@
                 Login
               </button>
             </form>
+            <div class="mt-3 text-center">
+              <p>Or</p>
+              <GoogleSignInButton @success="handleGoogleLogin" @error="handleGoogleError" />
+            </div>
             <div v-if="error" class="alert alert-danger mt-3">
               {{ error }}
             </div>
@@ -78,6 +82,9 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import CommonHeader from '@/components/layout/CommonHeader.vue'
 import CommonFooter from '@/components/layout/CommonFooter.vue'
+import axios from 'axios'
+import { toast } from 'vue3-toastify'
+import { GoogleSignInButton } from 'vue3-google-signin'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -128,6 +135,52 @@ const login = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const handleGoogleLogin = async (response) => {
+  error.value = ''
+  loading.value = true
+
+  try {
+    const res = await axios.post('/api/google-login/', {
+      credential: response.credential
+    })
+
+    const { access, refresh } = res.data
+
+    // Store tokens
+    localStorage.setItem('access_token', access)
+    localStorage.setItem('refresh_token', refresh)
+
+    // Fetch user profile to determine role
+    const userResponse = await axios.get('/api/user/', {
+      headers: { Authorization: `Bearer ${access}` }
+    })
+
+    const userType = userResponse.data.user_type
+
+    toast.success('Login successful!')
+
+    // Redirect based on role
+    if (userType === 'rider' || userType === 'both') {
+      router.push('/rider-portal')
+    } else if (userType === 'customer') {
+      router.push('/customer-portal')
+    } else {
+      // Admin or other
+      router.push('/dashboard')
+    }
+  } catch (err) {
+    error.value = err.response?.data?.detail || 'Google login failed.'
+    toast.error(error.value)
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleGoogleError = (error) => {
+  console.error('Google login error:', error)
+  toast.error('Google login failed.')
 }
 </script>
 

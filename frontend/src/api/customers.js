@@ -94,6 +94,26 @@ export const customerAPI = {
   getOrders() {
     return api.get('/customer/portal/')
   },
+
+  // Update payment for existing order
+  updatePayment(orderId, paymentData) {
+    return api.post(`/deliveries/${orderId}/process_payment/`, paymentData)
+  },
+
+  // Get payment by id
+  getPayment(paymentId) {
+    return api.get(`/payments/${paymentId}/`)
+  },
+
+  // Check payment status
+  checkPaymentStatus(orderId) {
+    return api.get(`/deliveries/${orderId}/payment_status/`)
+  },
+
+  // Confirm payment by M-PESA transaction code
+  confirmPaymentByCode(orderId, data) {
+    return api.post(`/deliveries/${orderId}/confirm_payment_by_code/`, data)
+  },
   
   // Mobile app endpoints
   getMobileVersion() {

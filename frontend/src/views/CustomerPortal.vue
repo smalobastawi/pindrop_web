@@ -36,8 +36,8 @@
       </nav>
 
       <!-- Main Content -->
-      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-        <div class="container-fluid">
+      <main class="col-md-9 ms-md-auto col-lg-10 px-md-4">
+        <div class="container">
           <!-- Header -->
           <div class="row mb-4">
             <div class="col-12">
@@ -58,7 +58,7 @@
 
       <!-- Statistics Cards -->
       <div class="row mb-4" v-if="portalData">
-        <div class="col-md-3">
+        <div class="col-12 col-sm-6 col-md-3">
           <div class="card text-white bg-primary">
             <div class="card-body">
               <h5 class="card-title">Total Orders</h5>
@@ -66,7 +66,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-12 col-sm-6 col-md-3">
           <div class="card text-white bg-warning">
             <div class="card-body">
               <h5 class="card-title">Pending Orders</h5>
@@ -74,7 +74,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-12 col-sm-6 col-md-3">
           <div class="card text-white bg-success">
             <div class="card-body">
               <h5 class="card-title">Completed Orders</h5>
@@ -82,7 +82,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-12 col-sm-6 col-md-3">
           <div class="card text-white bg-info">
             <div class="card-body">
               <h5 class="card-title">Total Spent</h5>
@@ -156,7 +156,14 @@
                         </td>
                         <td>{{ formatDate(order.created_at) }}</td>
                         <td>
-                          <button 
+                          <button
+                            v-if="order.payment && order.payment.status !== 'paid'"
+                            @click="payOrder(order)"
+                            class="btn btn-sm btn-outline-success me-1"
+                          >
+                            Pay
+                          </button>
+                          <button
                             @click="trackOrder(order.tracking_number)"
                             class="btn btn-sm btn-outline-primary"
                           >
@@ -185,7 +192,7 @@
             <button type="button" class="btn-close" @click="showCreateOrder = false"></button>
           </div>
           <div class="modal-body">
-            <CreateOrderForm @order-created="handleOrderCreated" @cancel="showCreateOrder = false" />
+            <CreateOrderForm @proceed-to-payment="handleProceedToPayment" @cancel="showCreateOrder = false" />
           </div>
         </div>
       </div>
@@ -214,11 +221,13 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { customerAPI } from '@/api/customers'
+import { useCustomerStore } from '@/stores/customerStore'
 import { toast } from 'vue3-toastify'
 import CreateOrderForm from '@/components/CreateOrderForm.vue'
 import TrackOrder from '@/components/TrackOrder.vue'
 
 const router = useRouter()
+const customerStore = useCustomerStore()
 const loading = ref(false)
 const portalData = ref(null)
 const customerData = ref(null)
@@ -248,10 +257,10 @@ const handleLogout = () => {
   router.push('/customer-portal/login')
 }
 
-const handleOrderCreated = () => {
+const handleProceedToPayment = (orderData) => {
+  customerStore.setPendingOrder(orderData)
   showCreateOrder.value = false
-  loadPortalData()
-  toast.success('Order created successfully!')
+  router.push('/customer-portal/payment')
 }
 
 const trackOrder = (trackingNumber) => {
@@ -310,6 +319,15 @@ const formatCurrency = (amount) => {
     style: 'currency',
     currency: 'KES'
   }).format(amount)
+}
+
+const payOrder = (order) => {
+  customerStore.setPendingOrder({
+    package: order.package,
+    delivery: order,
+    payment: order.payment
+  })
+  router.push('/customer-portal/payment')
 }
 
 onMounted(() => {

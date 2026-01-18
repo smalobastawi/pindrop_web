@@ -36,4 +36,7 @@ urlpatterns = [
     path('mobile/profile/', views.MobileUserProfileView.as_view(), name='mobile_profile'),
     path('mobile/device-token/', views.MobileDeviceTokenView.as_view(), name='mobile_device_token'),
     path('mobile/rider/availability/', views.RiderAvailabilityView.as_view(), name='rider_availability'),
+
+    # M-Pesa callback
+    path('mpesa/callback/', views.MpesaCallbackView.as_view(), name='mpesa_callback'),
 ]

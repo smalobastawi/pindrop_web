@@ -40,7 +40,11 @@
 </template>
 
 <script setup>
-// Sidebar component logic
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+const isCustomerRoute = computed(() => route.path.startsWith('/customer-portal'))
 </script>
 
 <style scoped>

@@ -197,7 +197,7 @@
       </button>
       <button type="submit" class="btn btn-primary" :disabled="loading">
         <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
-        Create Order
+        Proceed to Payment
       </button>
     </div>
   </form>
@@ -209,7 +209,7 @@ import { customerAPI } from '@/api/customers'
 import { toast } from 'vue3-toastify'
 import AddressSelector from '@/components/AddressSelector.vue'
 
-const emit = defineEmits(['order-created', 'cancel'])
+const emit = defineEmits(['proceed-to-payment', 'cancel'])
 const loading = ref(false)
 const error = ref('')
 
@@ -274,7 +274,7 @@ watch(() => [form.package.weight, form.delivery.priority], () => {
 const handleSubmit = async () => {
   error.value = ''
   loading.value = true
-  
+
   try {
     // Prepare the data
     const orderData = {
@@ -292,12 +292,11 @@ const handleSubmit = async () => {
         amount: parseFloat(form.payment.amount)
       }
     }
-    
-    await customerAPI.createOrder(orderData)
-    emit('order-created')
-    
+
+    emit('proceed-to-payment', orderData)
+
   } catch (err) {
-    error.value = err.response?.data?.error || 'Failed to create order. Please try again.'
+    error.value = err.response?.data?.error || 'Failed to proceed. Please try again.'
     toast.error(error.value)
   } finally {
     loading.value = false
