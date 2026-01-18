@@ -227,8 +227,6 @@ class DeliveryViewSet(viewsets.ModelViewSet):
             payment.phone_number = phone_number
         payment.save()
         
-        log_app_error(f'Payment {payment.id} confirmed manually with code: {transaction_code}')
-        
         return Response({
             'success': True,
             'message': 'Payment confirmed successfully',
@@ -254,12 +252,10 @@ class CustomerRegistrationView(APIView):
             serializer = CustomerRegistrationSerializer(data=request.data)
             if serializer.is_valid():
                 customer = serializer.save()
-                log_api_error(f'Customer registration successful for {customer.user.email}')
                 return Response({
                     'message': 'Customer registered successfully',
                     'customer': CustomerSerializer(customer).data
                 }, status=201)
-            log_api_error(f'Customer registration failed: {serializer.errors}')
             return Response(serializer.errors, status=400)
         except Exception as e:
             log_api_error(f'Error during customer registration: {str(e)}')
@@ -273,12 +269,6 @@ class RiderRegistrationView(APIView):
         try:
             # Handle both JSON and FormData submissions
             data = request.data.copy()
-
-            # Debug: Log what we're receiving
-            log_app_error(f'Rider registration request data: {dict(data)}')
-            log_app_error(f'Request content type: {request.content_type}')
-            log_app_error(f'Request POST: {dict(request.POST) if hasattr(request, "POST") else "No POST"}')
-            log_app_error(f'Request FILES: {dict(request.FILES) if hasattr(request, "FILES") else "No FILES"}')
 
             # Handle different field structures:
             # - JSON API calls might send 'name' instead of 'first_name' and 'last_name'
@@ -322,13 +312,9 @@ class RiderRegistrationView(APIView):
                         post_value = request.POST['password']
                         flattened_data[field] = post_value[0] if isinstance(post_value, list) and len(post_value) == 1 else post_value
 
-            # Debug: Log the final data being sent to serializer
-            log_app_error(f'Final data for serializer: {flattened_data}')
-
             serializer = RiderRegistrationSerializer(data=flattened_data)
             if serializer.is_valid():
                 rider = serializer.save()
-                log_api_error(f'Rider registration successful for {rider.user.email}')
                 return Response({
                     'message': 'Rider registered successfully',
                     'rider': RiderSerializer(rider).data
@@ -439,7 +425,6 @@ class CustomerPortalView(APIView):
 
     def post(self, request):
         """Create new delivery order"""
-        log_app_error(f'POST request data: {dict(request.data)}')
         try:
             user_profile = UserProfile.objects.get(user=request.user)
             if user_profile.user_type not in ['customer', 'both']:
@@ -451,10 +436,6 @@ class CustomerPortalView(APIView):
         package_data = request.data.get('package', {})
         delivery_data = request.data.get('delivery', {})
         payment_data = request.data.get('payment', {})
-
-        log_app_error(f'Package data: {package_data}')
-        log_app_error(f'Delivery data: {delivery_data}')
-        log_app_error(f'Payment data: {payment_data}')
 
         if not all([package_data, delivery_data, payment_data]):
             return Response({'error': 'Package, delivery, and payment data are required'}, status=400)
@@ -473,7 +454,6 @@ class CustomerPortalView(APIView):
                 except ValueError:
                     pass  # Ignore parsing errors
 
-            log_app_error(f'Creating package with data: {package_data}')
             # Create package
             package = Package.objects.create(
                 description=package_data.get('description'),
@@ -492,7 +472,6 @@ class CustomerPortalView(APIView):
             # Calculate delivery fee (basic calculation)
             delivery_fee = float(package_data.get('weight', 1)) * 10  # 10 currency units per kg
 
-            log_app_error(f'Creating delivery with data: {delivery_data}')
             # Parse datetimes
             estimated_pickup = parse_datetime(delivery_data.get('estimated_pickup'))
             estimated_delivery = parse_datetime(delivery_data.get('estimated_delivery'))
@@ -516,7 +495,6 @@ class CustomerPortalView(APIView):
                 created_by=request.user
             )
 
-            log_app_error(f'Creating payment with data: {payment_data}')
             # Create payment record
             payment = Payment.objects.create(
                 delivery=delivery,
@@ -531,7 +509,6 @@ class CustomerPortalView(APIView):
             mpesa_error = None
             
             if payment.payment_method == 'mpesa' and payment.phone_number:
-                log_app_error(f'Initiating M-Pesa STK Push for payment {payment.id}')
                 try:
                     from core.mpesa_service import MpesaService
                     import os
@@ -547,15 +524,12 @@ class CustomerPortalView(APIView):
                         callback_url=callback_url
                     )
                     
-                    log_app_error(f'M-Pesa STK Push response: {response}')
-                    
                     if response and response.get('ResponseCode') == '0':
                         payment.transaction_id = response.get('CheckoutRequestID')
                         payment.payment_gateway = 'mpesa'
                         payment.status = 'processing'
                         payment.save()
                         checkout_request_id = response.get('CheckoutRequestID')
-                        log_app_error(f'M-Pesa STK Push successful - CheckoutRequestID: {checkout_request_id}')
                     else:
                         error_msg = response.get('ResponseDescription', 'Unknown error') if response else 'No response'
                         log_app_error(f'M-Pesa STK Push failed: {error_msg}')
@@ -906,7 +880,6 @@ class MpesaCallbackView(APIView):
 
     def post(self, request):
         callback_data = request.data
-        log_app_error(f'M-Pesa callback received: {callback_data}')
 
         try:
             if 'Body' in callback_data and 'stkCallback' in callback_data['Body']:
@@ -930,7 +903,6 @@ class MpesaCallbackView(APIView):
                         payment.gateway_reference = mpesa_receipt_number
                         payment.paid_at = timezone.now()
                         payment.save()
-                        log_app_error(f'Payment {payment.id} marked as paid')
                     except Payment.DoesNotExist:
                         log_app_error(f'Payment not found for CheckoutRequestID: {checkout_request_id}')
                 else:
@@ -942,7 +914,6 @@ class MpesaCallbackView(APIView):
                         payment = Payment.objects.get(transaction_id=checkout_request_id)
                         payment.status = 'failed'
                         payment.save()
-                        log_app_error(f'Payment {payment.id} marked as failed')
                     except Payment.DoesNotExist:
                         log_app_error(f'Payment not found for CheckoutRequestID: {checkout_request_id}')
 
