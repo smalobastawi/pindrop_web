@@ -34,11 +34,8 @@ export default defineConfig({
     }
   },
   build: {
-    // For development/testing - outputs to dist
-    outDir: process.env.NODE_ENV === 'production' 
-      ? '../templates/frontend' 
-      : 'dist',
-    
+    // Always output to dist folder - committed to git for deployment
+    outDir: 'dist',
     emptyOutDir: true,
     rollupOptions: {
       output: {
