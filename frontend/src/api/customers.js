@@ -1,8 +1,10 @@
 // frontend/src/api/customers.js
 import axios from 'axios'
 
+// Use relative URL /api so nginx proxies to backend
+// In development, Vite proxy handles this; in production, nginx handles it
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   headers: {
     'Content-Type': 'application/json'
   }
@@ -31,7 +33,7 @@ api.interceptors.response.use(
       
       try {
         const refreshToken = localStorage.getItem('refresh_token')
-        const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'}/token/refresh/`, {
+        const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL || '/api'}/token/refresh/`, {
           refresh: refreshToken
         })
         
