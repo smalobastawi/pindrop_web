@@ -16,13 +16,14 @@ npm-debug.log*
 yarn-error.log*
 *.local
 
-# Django templates with built frontend assets
-templates/frontend/assets/
+# Django templates with built frontend assets - NOT ignored, we commit built files
+# templates/frontend/assets/  # Commented out to allow committing built frontend files
 !templates/frontend/index.html
 !templates/frontend/favicon.ico
+!templates/frontend/assets/
 
-# Vue.js build output
-frontend/dist/
+# Vue.js build output - dist is NOT ignored so we can commit locally built files
+# frontend/dist/  # Commented out to allow committing built frontend files
 frontend/dist-ssr/
 
 # Flutter / Dart

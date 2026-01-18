@@ -43,7 +43,7 @@ print_status "Backup created successfully"
 
 # Step 2: Pull latest changes (including locally built frontend)
 print_status "Pulling latest code changes (including built frontend)..."
-git pull origin main  # Adjust branch name if different
+git pull origin master  # Adjust branch name if different
 if [ $? -ne 0 ]; then
     print_warning "Git pull failed. Continuing with current code..."
 fi

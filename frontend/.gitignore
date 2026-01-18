@@ -17,7 +17,7 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
+# dist/ is NOT ignored - we need it for frontend build output
 downloads/
 eggs/
 .eggs/
@@ -45,20 +45,18 @@ staticfiles/
 .env.*.local
 
 # Vue.js / Node.js
-frontend/node_modules/
-frontend/dist/
-frontend/.env
-frontend/.env.local
-frontend/.env.*.local
-frontend/npm-debug.log*
-frontend/yarn-debug.log*
-frontend/yarn-error.log*
-frontend/.vscode/
-frontend/.idea/
+node_modules/
+# dist/ is NOT ignored - we commit locally built files
+.env
+.env.local
+.env.*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Vue build output
-frontend/dist/
-frontend/dist-ssr/
+# dist/ is NOT ignored so we can commit locally built frontend files
+dist-ssr/
 *.local
 
 # Editor directories and files
